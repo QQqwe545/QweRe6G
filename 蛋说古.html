@@ -1,104 +1,104 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cute OS - World Book Only</title>
-    <!-- 引入 FontAwesome 图标库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #fff1f2;
-            --accent-pink: #ffb7b2;
-            --accent-blue: #a2e1db;
-            --accent-yellow: #ffdfba;
-            --text-color: #6b5b5b;
-            --glass-bg: rgba(255, 255, 255, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --icon-size: 50px;
+3
+>
+<
+<元 字符集="UTF-8"><元 字符集="UTF-8">
+<元 姓名="视口"内容="宽度=设备宽度，初始比例=1.0，最大比例=1.0，用户可缩放=无，视口适合=封面"><元 姓名="视口" 内容="宽度=设备宽度，初始比例=1.0，最大比例=1.0，用户可缩放=无，视口适合=覆盖">
+<标题>可爱的操作系统-仅限世界图书</标题><标题>可爱的操作系统-仅限世界图书</标题>
+<！--引入FontAwesome图标库--><！--引入FontAwesome图标库-->
+<链接 rel="样式表"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><链接 rel="样式表" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<风格><风格>
+：根{根 {
+--bg-颜色：#fff1f2；--bg-颜色：#fff1f2；
+-----------------------------------------------------------------#ffb7b2；--pacent-pink:#ffb7b2；
+--浅蓝色：#a2e1db；--accent-blue：#a2e1db；
+--重音-黄色：#ffdfba；--重音-黄色：#ffdfba；
+--文本颜色：#6b5b5b；--文本颜色：#6b5b5b；
+--glass-bg:RGBA(255，255，255，0.5)；--glass-bg:RGBA(255，255，255，0.5)。6)；
+--玻璃边界：RGBA(255，255，255，0.8)；--玻璃边框：RGBA(255，255，255，0.8)；
+--图标尺寸：50px；--图标尺寸：50px；
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
+* {{
+框大小：边框框；箱体尺寸头边框框；
+页边距：0；边缘: 0;
+填充：0；填充: 0;
+-webkit-tap-highlight-color：透明；-webkit-tap-highlight-color：透明；
+用户选择：无；用户选择：没有一个；
         }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: "Nunito", "PingFang SC", "Microsoft YaHei", sans-serif;
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(var(--accent-pink) 15%, transparent 16%),
-                radial-gradient(var(--accent-blue) 15%, transparent 16%);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
-            color: var(--text-color);
-            overscroll-behavior: none;
-            touch-action: none;
+正文，HTML{body，html{
+宽度：100%；宽度：100%；
+高度：100%；高度：100%；
+溢出：隐藏；溢出：隐藏的；
+字体系列：“Nunito”、“Pingfang”SC、“微软雅黑”、无衬线；字体系列：“Nunito”、“Pingfang SC”、“微软雅黑”、无衬线；
+背景色：var(--bg-color)；背景色：var(--bg-color)；
+背景图像：背景图象:
+径向梯度(var(--cent-pink)15%，透明16%)，radial-gradient(var(--cent-pink)15%，transparent16%)，
+径向梯度(var(-acent-blue)15%，透明16%)；radial-gradient(var(--acent-blue)15%，透明16%)；
+背景尺寸：60px60px；background-size:60px60px；
+背景位置：00，30px30px；background-position:00，30px30px；
+颜色：var(--text-color)；color:var(--text-color)；
+透明的
+--text-color
         }
 
-        #app-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-bottom: env(safe-area-inset-bottom);
+#app-container{app-container{app-container{app-container{
+位置：相对；位置：相对；：相对的；
+相对的%；宽度：100%；%；width:100%；
+高度：100%；高度：100%；%；高度：100%；
+显示：柔性；显示：柔性；：弯曲；
+弯曲方向：立柱；弯曲方向：立柱；：柱；
+justify-Content：间距；justify-Content：间隔；：间距；
+垫底：env(安全区域-插入-底部)；padding-bottom:env(safe-area-inset-bottom)；：env(安全区域-插入-底部)；填充-底部：env(安全区域-插入-底部)；
         }
 
-        /* Status Bar */
-        .status-bar {
-            height: 44px;
-            padding: 0 20px;
-            padding-top: env(safe-area-inset-top);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            font-size: 14px;
-            z-index: 100;
+/*状态栏*//*状态栏*//*状态栏*/
+.status-bar{status-bar{status-bar{status-bar{
+高度：44px；高度：44px；：44px；
+填充：020px；padding:020px；：020px；
+顶部衬垫：env(安全区域-插入-top)；：env(安全区域-插入-顶部)；填充-顶部：env(安全区域-插入-顶部)；
+显示：柔性；显示：柔性；：弯曲；
+justify-Content：间距；justify-Content：间隔；：间距；
+对齐项：居中；对齐项：居中；：中心；
+字体粗细：600；font-weight:600；：600；font-weight:600；
+font-size:14px；font-size:14px；：14px；font-size:14px；
+Z指数：100；z指数：100；：100；
         }
-        .status-right { display: flex; gap: 6px; }
+.status-right{显示：弯曲；间隙：6px；}status-right{显示：flex；gap:6px；}status-right{显示：弯曲；间隙：6px；}status-right{显示：弯曲；间隙：6px；}
 
-        /* Gallery Section */
-        .gallery-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 0 10px;
-        }
-
-        .photo-grid {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            width: 100%;
-            max-width: 100%;
-            padding: 20px 0;
-            transform: translateY(-180px); 
+/*画廊部分*//*画廊部分*//*画廊部分*/
+.画廊-剖面图{gallery-section{画廊-剖面图{gallery-section{
+flex:1；flex:1；：1；flex:1；
+显示：柔性；显示：柔性；：弯曲；
+弯曲方向：立柱；弯曲方向：立柱；：柱；
+对齐-内容：居中；对齐-内容：居中；：中心；
+对齐项：居中；对齐项：居中；：中心；
+位置：相对；位置：相对；：相对的；
+填充：010px；padding:010px；：010px；
         }
 
-        .polaroid {
-            width: 23%;
-            max-width: 100px;
-            min-width: 70px;
-            aspect-ratio: 1/1.25;
-            background: white;
-            padding: 6px 6px 20px 6px;
-            box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
-            border-radius: 3px;
+.photo-grid{photo-grid{photo-grid{photo-grid{
+显示：柔性；显示：柔性；：弯曲；
+柔性方向：行；柔性方向：行；：行；
+弹性缠绕：无缠绕；弹性缠绕：无缠绕；：noWrap；柔绕：noWrap；
+对齐-内容：居中；对齐-内容：居中；：中心；
+对齐项：居中；对齐项：居中；：中心；
+间隙：5px；：5px；
+PX%；宽度：100%；%；width:100%；
+最大宽度：100%；max-width:100%；%；max-width:100%；
+填充：20px0；padding:20px0；：20px0；
+变换：translateY(-180px)；变换：translateY(-180px)；：translateY(-180px)；变换：translateY(-180px)；
+        }
+
+.polaroid{polaroid{polaroid{polaroid{
+宽度：23%；width:23%；%；width:23%；
+最大宽度：100px；max-width
+最小宽度：70px；最小宽度：70px；
+PX
+背景：白色；背景：白色；
+填料：6px6px20px6px；
+PX
+边界半径：3px；border-radius
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             cursor: pointer;
