@@ -1,0 +1,2967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cute OS - World Book Only</title>
+    <!-- 引入 FontAwesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #fff1f2;
+            --accent-pink: #ffb7b2;
+            --accent-blue: #a2e1db;
+            --accent-yellow: #ffdfba;
+            --text-color: #6b5b5b;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --icon-size: 50px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Nunito", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(var(--accent-pink) 15%, transparent 16%),
+                radial-gradient(var(--accent-blue) 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            color: var(--text-color);
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            padding: 0 20px;
+            padding-top: env(safe-area-inset-top);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 100;
+        }
+        .status-right { display: flex; gap: 6px; }
+
+        /* Gallery Section */
+        .gallery-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .photo-grid {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            max-width: 100%;
+            padding: 20px 0;
+            transform: translateY(-180px); 
+        }
+
+        .polaroid {
+            width: 23%;
+            max-width: 100px;
+            min-width: 70px;
+            aspect-ratio: 1/1.25;
+            background: white;
+            padding: 6px 6px 20px 6px;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+            border-radius: 3px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .polaroid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+            background-color: #eee;
+        }
+
+        .polaroid:nth-child(1) { transform: rotate(-6deg) translateY(10px); z-index: 1; }
+        .polaroid:nth-child(2) { transform: rotate(4deg) translateY(-5px); z-index: 2; }
+        .polaroid:nth-child(3) { transform: rotate(-5deg) translateY(8px); z-index: 1; }
+        .polaroid:nth-child(4) { transform: rotate(3deg) translateY(-3px); z-index: 2; }
+
+        .polaroid:hover, .polaroid:active {
+            transform: scale(1.15) rotate(0deg) !important;
+            z-index: 50;
+            box-shadow: 5px 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .tape {
+            position: absolute;
+            width: 20px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.5);
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* App Section */
+        .app-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 10px 20px 20px 20px;
+            gap: 15px;
+            width: 100%;
+            z-index: 20;
+            position: relative;
+            transform: translateY(-350px);
+        }
+
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .app-icon {
+            width: var(--icon-size);
+            height: var(--icon-size);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.1s;
+        }
+
+        .app-icon:active { transform: scale(0.9); }
+
+        .icon-world { background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+        /* Removed icon-preset style */
+        .icon-char { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+        .icon-offline { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+
+        .app-name {
+            font-size: 11px;
+            color: var(--text-color);
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            letter-spacing: 0.5px;
+        }
+
+        /* Dock */
+        .bottom-dock-wrapper {
+            padding: 10px 20px 25px 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .bottom-dock {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 12px 30px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+
+        .dock-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #7a7a7a;
+            font-size: 10px;
+            cursor: pointer;
+            min-width: 44px;
+        }
+
+        .dock-icon-box {
+            font-size: 22px;
+            color: #555;
+            transition: color 0.2s;
+        }
+        .dock-item:hover .dock-icon-box { color: #ff8fab; }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* =========================================
+           世界书二级页面样式
+           ========================================= */
+        .sub-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fffcfcf5;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 200;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sub-page.active {
+            transform: translateX(0);
+        }
+
+        /* 二级页面头部 */
+        .page-header {
+            height: 88px;
+            padding-top: env(safe-area-inset-top);
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.5);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            width: 80px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4a4a4a;
+        }
+
+        .header-btn {
+            font-size: 18px;
+            color: #ff9a9e;
+            padding: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            /* 新增下面两行，强制按钮在最上层，防止被标题遮挡 */
+            position: relative; 
+            z-index: 100;
+        }
+        
+        .header-right {
+            width: auto;
+            gap: 5px;
+        }
+        
+        .header-btn:active { opacity: 0.6; }
+
+        /* 页面内容区域 */
+        .page-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 80px !important; 
+        }
+
+        /* 模拟世界书列表项 */
+        .book-item {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+        }
+        .book-item:active { transform: scale(0.98); }
+
+        .book-cover {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+        }
+        .book-info { flex: 1; }
+        .book-title { font-weight: bold; font-size: 16px; color: #444; margin-bottom: 4px; }
+        .book-meta { font-size: 12px; color: #999; }
+        
+        /* --- 编辑器与表单样式 --- */
+        .cute-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.8);
+            margin-bottom: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .cute-input:focus { border-color: var(--accent-pink); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #888; margin-left: 5px; }
+
+        .divider { text-align: center; margin: 20px 0; border-bottom: 1px dashed #ddd; line-height: 0.1em; }
+        .divider span { background: #fffcfc; padding: 0 10px; color: #aaa; font-size: 12px; }
+
+        .add-entry-btn {
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            border: 2px dashed #ddd;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .add-entry-btn:active { background: #f9f9f9; transform: scale(0.98); }
+
+        /* --- 条目卡片样式 --- */
+        .entry-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* 开关按钮 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent-blue); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        .entry-content-area {
+            width: 100%;
+            min-height: 80px;
+            resize: vertical;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            padding: 8px;
+            font-family: inherit;
+            background: #fdfdfd;
+        }
+        
+        .delete-entry { color: #ff6b6b; font-size: 12px; cursor: pointer; padding: 5px; }
+
+        /* --- 模态框样式 --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 300;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .folder-input-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .cute-btn { border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .cute-btn.primary { background: var(--accent-pink); color: white; }
+        .cute-btn.secondary { background: #eee; color: #666; }
+        
+        .folder-list { max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
+        .folder-item-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 8px; border-bottom: 1px solid #f5f5f5; 
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        
+        /* --- 世界书底部切换 Tab 样式 --- */
+        .wb-tab-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 300px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            display: flex;
+            padding: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .wb-tab-item {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #888;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .wb-tab-item.active {
+            background: white;
+            color: var(--accent-pink);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+                /* --- 修正：标题绝对居中 --- */
+        .page-header {
+            position: relative; /* 确保子元素绝对定位基于此 */
+        }
+        .header-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%; /* 限制宽度防止遮挡按钮 */
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none; /* 让点击穿透，防止遮挡底层点击 */
+            z-index: 1;
+        }
+        .header-left, .header-right {
+            position: relative;
+            z-index: 2; /* 确保按钮在标题之上 */
+        }
+        
+        /* --- 新增：头像上传样式 --- */
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+            margin-top: 10px;
+        }
+        
+        .avatar-wrapper {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        
+        .avatar-wrapper:active { transform: scale(0.95); }
+        
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            font-size: 30px;
+            color: #ccc;
+        }
+        
+        .avatar-tip {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- 装饰背景 -->
+        <div class="cloud" style="width: 60px; height: 60px; top: 10%; left: -10%; filter: blur(2px);"></div>
+        <div class="cloud" style="width: 80px; height: 80px; top: 20%; right: -20%; filter: blur(3px);"></div>
+
+        <!-- 顶部状态栏 -->
+        <div class="status-bar">
+            <div id="clock">09:41</div>
+            <div class="status-right">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- 中间展示区：横排不规则相框 -->
+        <div class="gallery-section">
+            <div class="photo-grid">
+                <div class="polaroid"><div class="tape"></div><img src="https://picsum.photos/200/200?random=1" alt="Photo 1"></div>
+                <div class="polaroid"><div class="tape"></div><img src="https://picsum.photos/200/200?random=2" alt="Photo 2"></div>
+                <div class="polaroid"><div class="tape"></div><img src="https://picsum.photos/200/200?random=3" alt="Photo 3"></div>
+                <div class="polaroid"><div class="tape"></div><img src="https://picsum.photos/200/200?random=4" alt="Photo 4"></div>
+            </div>
+        </div>
+
+        <!-- 底部 APP 区域 -->
+        <div class="app-section">
+            <!-- 世界书 -->
+            <div class="app-item" onclick="openWorldBook()">
+                <div class="app-icon icon-world"><i class="fas fa-book-open"></i></div>
+                <span class="app-name">世界书</span>
+            </div>
+            
+                        <!-- 角色档案 (修改 onclick) -->
+            <div class="app-item" onclick="openCharacterPage()">
+                <div class="app-icon icon-char"><i class="fas fa-id-card"></i></div>
+                <span class="app-name">角色档案</span>
+            </div>
+            
+            <!-- 线下模式 -->
+            <div class="app-item">
+                <div class="app-icon icon-offline"><i class="fas fa-plane"></i></div>
+                <span class="app-name">线下模式</span>
+            </div>
+            
+            <!-- 占位符，保持Grid布局美观，或者可以添加其他功能 -->
+            <div class="app-item" style="opacity: 0; pointer-events: none;">
+                <div class="app-icon"><i class="fas fa-star"></i></div>
+                <span class="app-name">占位</span>
+            </div>
+        </div>
+
+        <!-- 底部导航 Dock -->
+        <div class="bottom-dock-wrapper">
+            <div class="bottom-dock">
+                <div class="dock-item">
+                    <div class="dock-icon-box"><i class="fas fa-brain"></i></div>
+                    <span>记忆总结</span>
+                </div>
+                <div class="dock-item">
+                    <div class="dock-icon-box"><i class="fas fa-palette"></i></div>
+                    <span>主题</span>
+                </div>
+                <!-- 找到原本的设置 dock-item，替换为： -->
+<div class="dock-item" onclick="openSettings()">
+    <div class="dock-icon-box"><i class="fas fa-cog"></i></div>
+    <span>设置</span>
+</div>
+            </div>
+        </div>
+
+        <!-- =========================================
+             世界书页面 (隐藏层)
+             ========================================= -->
+        <div id="world-book-page" class="sub-page">
+            <!-- 头部 -->
+            <div class="page-header">
+                <div class="header-left">
+                    <div class="header-btn" onclick="closeWorldBook()">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+                <div class="header-title">世界书</div>
+                <div class="header-right">
+                    <!-- 1. 隐藏的文件上传控件 -->
+                    <input type="file" id="import-file-input" accept=".json,.docx,.pdf,.txt" style="display: none;" onchange="handleFileImport(this)">
+                    
+                    <!-- 2. 导入按钮：点击触发上面的input -->
+                    <div class="header-btn" title="导入" onclick="triggerImport()">
+                        <i class="fas fa-file-import"></i>
+                    </div>
+                    <!-- 3. 文件夹按钮 -->
+                    <div class="header-btn" title="文件夹" onclick="openFolderManager()">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <!-- 4. 创建世界书按钮 -->
+                    <div class="header-btn" title="新建" onclick="createNewBook()">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 内容区 (示例列表) -->
+            <div class="page-content">
+                <div class="book-item">
+                    <div class="book-cover" style="background: linear-gradient(135deg, #FF9A9E, #FECFEF);"><i class="fas fa-dragon"></i></div>
+                    <div class="book-info">
+                        <div class="book-title">艾尔利亚大陆史</div>
+                        <div class="book-meta">234 条目 · 最后编辑刚刚</div>
+                    </div>
+                    <i class="fas fa-ellipsis-v" style="color:#ccc;"></i>
+                </div>
+
+                <div class="book-item">
+                    <div class="book-cover" style="background: linear-gradient(135deg, #a18cd1, #fbc2eb);"><i class="fas fa-space-shuttle"></i></div>
+                    <div class="book-info">
+                        <div class="book-title">星际联邦档案</div>
+                        <div class="book-meta">56 条目 · 昨天</div>
+                    </div>
+                    <i class="fas fa-ellipsis-v" style="color:#ccc;"></i>
+                </div>
+
+                <div class="book-item">
+                    <div class="book-cover" style="background: linear-gradient(135deg, #84fab0, #8fd3f4);"><i class="fas fa-school"></i></div>
+                    <div class="book-info">
+                        <div class="book-title">现代校园设定集</div>
+                        <div class="book-meta">12 条目 · 3天前</div>
+                    </div>
+                    <i class="fas fa-ellipsis-v" style="color:#ccc;"></i>
+                </div>                                            
+            </div>
+            
+            <!-- 底部切换栏 -->
+            <div class="wb-tab-bar">
+                <div class="wb-tab-item active" id="tab-global" onclick="switchBookTab('global')">全局设定</div>
+                <div class="wb-tab-item" id="tab-local" onclick="switchBookTab('local')">局部设定</div>
+            </div>
+        </div>
+      
+        <!-- =========================================
+         世界书编辑页面
+         ========================================= -->
+    <div id="editor-page" class="sub-page" style="z-index: 210;">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-btn" onclick="closeEditor()">
+                    <i class="fas fa-chevron-left"></i> 返回
+                </div>
+            </div>
+            <div class="header-title" id="editor-title">编辑世界书</div>
+            <div class="header-right">
+                <div class="header-btn" onclick="saveCurrentBook()">
+                    <i class="fas fa-save"></i> 保存
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <!-- 书籍基础信息 -->
+            <div class="form-group">
+                <label>书名</label>
+                <input type="text" id="book-name-input" class="cute-input" placeholder="输入世界书名称...">
+            </div>
+            
+            <div class="form-group">
+                <label>文件夹分类</label>
+                <select id="book-folder-select" class="cute-input"></select>
+            </div>
+
+            <div class="divider"><span>内容条目</span></div>
+
+            <!-- 条目列表 -->
+            <div id="entries-container">
+                <!-- JS 会在这里动态生成条目 -->
+            </div>
+
+            <!-- 添加条目按钮 -->
+            <div class="add-entry-btn" onclick="addNewEntry()">
+                <i class="fas fa-plus-circle"></i> 添加新条目
+            </div>
+        </div>
+    </div>
+    
+        <!-- =========================================
+         设置页面 (新增)
+         ========================================= -->
+    <div id="settings-page" class="sub-page" style="z-index: 220;">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-btn" onclick="closeSettings()">
+                    <i class="fas fa-chevron-left"></i> 返回
+                </div>
+            </div>
+            <div class="header-title">系统设置</div>
+            <div class="header-right"></div> <!-- 占位 -->
+        </div>
+
+        <div class="page-content">
+            
+                        <!-- 1. API 设置 (修改为入口) -->
+            <div class="divider"><span>API 设置</span></div>
+            <div class="entry-card" onclick="openApiPage()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="background: var(--accent-blue); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <span style="font-weight: bold; color: #555;">API 配置与管理</span>
+                </div>
+                <i class="fas fa-chevron-right" style="color: #ccc;"></i>
+            </div>
+
+            <!-- 2. 图标设置 -->
+            <div class="divider"><span>外观设置</span></div>
+            <div class="entry-card">
+                <div class="entry-header">
+                    <span style="font-weight: bold; color: #555;">APP 图标圆角</span>
+                </div>
+                <div style="padding: 10px 0;">
+                    <input type="range" id="icon-radius-slider" min="0" max="50" value="14" style="width: 100%; accent-color: var(--accent-blue);" oninput="changeIconStyle(this.value)">
+                </div>
+                
+                <div class="entry-header" style="margin-top: 15px;">
+                    <span style="font-weight: bold; color: #555;">图标风格</span>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="app-icon icon-world" style="width: 40px; height: 40px; font-size: 18px;"></div>
+                    <div class="app-icon icon-char" style="width: 40px; height: 40px; font-size: 18px;"></div>
+                    <div class="app-icon icon-offline" style="width: 40px; height: 40px; font-size: 18px;"></div>
+                </div>
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">* 仅作示例，实际切换需替换图片资源</p>
+            </div>
+
+            <!-- 3. 悬浮球开关 -->
+            <div class="divider"><span>辅助功能</span></div>
+            <div class="entry-card">
+                <div class="entry-header">
+                    <span style="font-weight: bold; color: #555;">启用悬浮球</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="float-ball-switch" onchange="toggleFloatBall(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">开启后将在屏幕显示快捷操作悬浮球</p>
+            </div>
+            
+            <div style="height: 50px;"></div>
+        </div>
+    </div>
+
+    <!-- 悬浮球 HTML (默认隐藏) -->
+    <div id="assist-ball" style="display: none; position: absolute; right: 20px; bottom: 150px; width: 50px; height: 50px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px); border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; justify-content: center; align-items: center; cursor: pointer; border: 2px solid white;">
+        <i class="fas fa-magic" style="color: var(--accent-pink); font-size: 20px;"></i>
+    </div>
+    
+            <!-- =========================================
+         API 详细设置页面 (更新版)
+         ========================================= -->
+    <div id="api-sub-page" class="sub-page" style="z-index: 230;">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-btn" onclick="closeApiPage()">
+                    <i class="fas fa-chevron-left"></i> 返回
+                </div>
+            </div>
+            <div class="header-title">API 设置</div>
+            <div class="header-right">
+                <!-- 批量删除按钮 -->
+                <div class="header-btn" title="删除选中" onclick="batchDeleteApiConfigs()" style="color: #ff6b6b;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- 当前配置表单 -->
+            <div class="entry-card">
+                <div class="form-group">
+                    <label><i class="fas fa-link"></i> API 地址 (Base URL)</label>
+                    <input type="text" id="detail-api-url" class="cute-input" placeholder="例如: https://api.openai.com/v1">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> API Key</label>
+                    <input type="password" id="detail-api-key" class="cute-input" placeholder="sk-...">
+                </div>
+
+                <!-- 新增：分类输入 -->
+                <div class="form-group">
+                    <label><i class="fas fa-tags"></i> 配置分类 (Category)</label>
+                    <div style="position: relative;">
+                        <input type="text" id="api-category" class="cute-input" list="category-options" placeholder="例如: OpenAI / 本地模型 / 转发" value="默认分类">
+                        <datalist id="category-options">
+                            <!-- JS 自动填充现有分类 -->
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-robot"></i> 模型名称</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="detail-api-model" class="cute-input" style="margin-bottom: 0;" placeholder="gpt-4o-mini">
+                        <button class="cute-btn secondary" onclick="fetchModelsFromApi()" title="刷新获取模型">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <label><i class="fas fa-thermometer-half"></i> 温度 (Temperature)</label>
+                        <span id="temp-value" style="font-size: 12px; color: var(--accent-pink); font-weight: bold;">1.0</span>
+                    </div>
+                    <div style="padding: 10px 0;">
+                        <input type="range" id="api-temp" min="0" max="2" step="0.1" value="1.0" 
+                               style="width: 100%; accent-color: var(--accent-pink);" 
+                               oninput="document.getElementById('temp-value').innerText = this.value">
+                    </div>
+                </div>
+
+                <button class="add-entry-btn" onclick="saveNewApiConfig()" style="background: var(--accent-blue); color: white; border: none; margin-top: 10px;">
+                    <i class="fas fa-save"></i> 保存并应用配置
+                </button>
+            </div>
+
+            <div class="divider"><span>已存配置 (按分类)</span></div>
+
+            <!-- 保存的配置列表 (JS生成分类标题和内容) -->
+            <div id="api-config-list" style="padding-bottom: 20px;">
+                <!-- JS 动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+        <!-- =========================================
+         模型选择弹窗 (新增)
+         ========================================= -->
+    <div id="model-select-modal" class="modal-overlay" style="z-index: 400;">
+        <div class="modal-box" style="max-height: 70vh; display: flex; flex-direction: column; padding: 0;">
+            <div style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; font-size: 16px;">选择模型</div>
+            
+            <!-- 模型列表容器 -->
+            <div id="model-list-container" style="flex: 1; overflow-y: auto; padding: 0;">
+                <!-- JS 将在这里生成列表 -->
+                <div style="padding: 20px; text-align: center; color: #999;">请先点击刷新按钮...</div>
+            </div>
+            
+            <div style="padding: 10px; border-top: 1px solid #eee;">
+                <button class="cute-btn secondary" style="width: 100%;" onclick="document.getElementById('model-select-modal').style.display='none'">取消</button>
+            </div>
+        </div>
+    </div>
+    
+        <!-- =========================================
+         角色档案列表页面 (新增)
+         ========================================= -->
+    <div id="character-page" class="sub-page" style="z-index: 205;">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-btn" onclick="closeCharacterPage()">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+            </div>
+            <div class="header-title">角色档案</div>
+            <div class="header-right">
+                <!-- 添加角色按钮 -->
+                <div class="header-btn" onclick="openCharCreator()">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content" id="character-list-content">
+            <!-- JS 将在此处生成角色卡片 -->
+        </div>
+        
+                <!-- 个人中心内容区 (默认隐藏) -->
+        <div class="page-content" id="character-personal-content" style="display: none;">
+            
+            <!-- 人设面具折叠面板 -->
+            <div class="entry-card" style="padding: 0; overflow: hidden;">
+                <div class="entry-header" style="padding: 15px; background: #fffcfc; border-bottom: 1px solid #f0f0f0; margin-bottom: 0; cursor: pointer;" onclick="togglePersonaAccordion()">
+                    <span style="font-weight: bold; color: var(--accent-blue);">
+                        <i class="fas fa-mask"></i> 人设面具 
+                        <span id="persona-count" style="font-size: 12px; color: #999; font-weight: normal;">(0/5)</span>
+                    </span>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <!-- 添加按钮 -->
+                        <i class="fas fa-plus-circle" style="color: var(--accent-pink); font-size: 18px;" onclick="event.stopPropagation(); openPersonaCreator()"></i>
+                        <i class="fas fa-chevron-down" id="persona-arrow" style="transition: transform 0.3s;"></i>
+                    </div>
+                </div>
+                
+                <!-- 面具列表容器 -->
+                <div id="persona-list-container" style="padding: 10px; background: #fafafa; display: block;">
+                    <!-- JS 动态生成列表 -->
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #ccc; font-size: 12px;">
+                勾选一个人设面具，即可使用该身份与角色互动
+            </div>
+        </div>
+
+                <!-- 底部切换栏 (修改后) -->
+        <div class="wb-tab-bar">
+            <div class="wb-tab-item active" id="tab-char-list" onclick="switchCharTab('list')">角色列表</div>
+            <div class="wb-tab-item" id="tab-char-personal" onclick="switchCharTab('personal')">个人中心</div>
+        </div>
+    </div> <!-- 这里补全了角色页面的结束标签 -->
+
+    <!-- =========================================
+         角色创建/编辑弹窗 (全屏模式)
+         ========================================= -->
+    <div id="char-creator-modal" class="sub-page" style="z-index: 240; background: #fffcfc;">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-btn" onclick="closeCharCreator()">取消</div>
+            </div>
+            <div class="header-title">角色人设</div>
+            <div class="header-right">
+                <div class="header-btn" onclick="saveCharacter()" style="color: var(--accent-blue); font-weight: bold;">完成</div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            
+            <!-- 模式切换开关 -->
+            <div class="entry-card" style="display: flex; justify-content: space-between; align-items: center; background: #f0f8ff; border: 1px solid #e1eef9;">
+                <span style="font-weight: bold; color: #444;">人设模式 (关=简版 / 开=精版)</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mode-switch" onchange="toggleCharMode(this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+                        <!-- 头像上传区 -->
+            <div class="avatar-section">
+                <div class="avatar-wrapper" onclick="document.getElementById('char-avatar-input').click()">
+                    <img id="char-avatar-preview" src="" class="avatar-img" style="display: none;">
+                    <i id="char-avatar-icon" class="fas fa-camera avatar-placeholder"></i>
+                </div>
+                <div class="avatar-tip">点击更换头像</div>
+                <input type="file" id="char-avatar-input" accept="image/*" style="display: none;" onchange="handleAvatarFile(this, 'char-avatar-preview', 'char-avatar-icon')">
+            </div>
+
+            <!-- 1. 基础信息 (通用) -->
+            <div class="divider"><span>基础信息</span></div>
+            <div class="entry-card">
+                <div class="form-group">
+                    <label>真实姓名</label>
+                    <input type="text" id="char-name" class="cute-input" placeholder="例如: 林婉儿">
+                </div>
+                <div class="form-group">
+                    <label>小名/昵称</label>
+                    <input type="text" id="char-nickname" class="cute-input" placeholder="例如: 婉婉">
+                </div>
+                <div class="form-group">
+                    <label>性别 (影响生理特征选项)</label>
+                    <select id="char-gender" class="cute-input" onchange="toggleGenderFields(this.value)">
+                        <option value="female">女性</option>
+                        <option value="male">男性</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                
+                <!-- 简版特有：一句话人设 -->
+                <div id="simple-mode-area">
+                    <div class="form-group">
+                        <label>人设描述</label>
+                        <textarea id="char-desc-simple" class="entry-content-area" placeholder="简要描述人物性格和设定..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 精版详细设定 (默认隐藏) -->
+            <div id="detailed-mode-area" style="display: none;">
+                
+                <!-- 身体数据 -->
+                <div class="entry-card">
+                    <h4 style="margin-bottom: 10px; color: var(--accent-pink);"><i class="fas fa-ruler-combined"></i> 身体数据</h4>
+                    <div class="folder-input-row">
+                        <input type="number" id="char-age" class="cute-input" placeholder="年龄">
+                        <input type="date" id="char-birthday" class="cute-input" onchange="calculateZodiac(this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>星座 (自动生成)</label>
+                        <input type="text" id="char-zodiac" class="cute-input" readonly placeholder="选择生日自动生成">
+                    </div>
+                    <div class="folder-input-row">
+                        <input type="text" id="char-height" class="cute-input" placeholder="身高 (cm)">
+                        <input type="text" id="char-weight" class="cute-input" placeholder="体重 (kg)">
+                    </div>
+                </div>
+
+                <!-- 外貌特征 -->
+                <div class="entry-card">
+                    <h4 style="margin-bottom: 10px; color: var(--accent-pink);"><i class="fas fa-smile"></i> 外貌特征</h4>
+                    <div class="form-group"><label>发型/发色</label><input type="text" id="char-hair" class="cute-input"></div>
+                    <div class="form-group"><label>面部特征</label><input type="text" id="char-face" class="cute-input"></div>
+                    <div class="form-group">
+                        <label>皮肤状态</label>
+                        <select id="char-skin" class="cute-input">
+                            <option value="">请选择</option><option>白皙细腻</option><option>健康小麦色</option><option>苍白病态</option><option>粗糙黝黑</option><option>敏感泛红</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>体型 (根据身高体重)</label>
+                        <select id="char-bodytype" class="cute-input">
+                            <option>超瘦 (皮包骨)</option><option>苗条纤细</option><option>匀称标准</option><option>丰满肉感</option><option>健壮肌肉</option><option>超胖 (肥硕)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>特殊印记 (痣/胎记/疤痕)</label>
+                        <textarea id="char-marks" class="cute-input" placeholder="部位、大小、颜色、形态..."></textarea>
+                    </div>
+                </div>
+                <div id="female-features">
+                                    <h4 style="margin-bottom: 10px; color: #ff6b81;"><i class="fas fa-venus"></i> 女性生理精细设定</h4>
+
+                    <!-- 1. 印记/痣/疤痕 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">特殊的印记 (痣/胎记/疤痕)</label>
+                    <div class="folder-input-row">
+                        <select id="f-mark-type" class="cute-input">
+                            <option value="">形态分类</option>
+                            <option>泪痣 (眼角)</option><option>美人痣 (眉心)</option><option>苦情痣</option>
+                            <option>圆形凸起</option><option>不规则斑块</option><option>长条疤痕</option><option>穿刺痕迹</option>
+                        </select>
+                        <select id="f-mark-size" class="cute-input">
+                            <option value="">大小</option>
+                            <option>针尖状</option><option>米粒大</option><option>硬币大</option><option>覆盖大片皮肤</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="f-mark-color" class="cute-input">
+                            <option value="">颜色</option>
+                            <option>朱砂红</option><option>浅褐</option><option>深黑</option><option>肉粉色</option><option>青紫色</option>
+                        </select>
+                        <input type="text" id="f-mark-loc" class="cute-input" placeholder="具体部位 (如: 左乳侧面)">
+                    </div>
+
+                    <!-- 2. 乳房与乳头 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">乳房 & 乳头</label>
+                    <div class="folder-input-row">
+                        <select id="f-cup" class="cute-input">
+                            <option value="">罩杯</option>
+                            <option>AAA杯 (平板)</option><option>AA杯 (微隆)</option><option>A cup</option>
+                            <option>B cup</option><option>C cup</option><option>D cup</option>
+                            <option>E cup</option><option>F+ 巨乳</option><option>H+ 爆乳</option>
+                        </select>
+                        <select id="f-breast-sens" class="cute-input">
+                            <option value="">乳房敏感度</option>
+                            <option>石化 (无感)</option><option>迟钝</option><option>普通</option><option>敏感</option><option>超敏感 (一碰就软)</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="f-nipple-shape" class="cute-input">
+                            <option value="">乳头形态</option>
+                            <option>内陷</option><option>短小</option><option>普通凸起</option><option>长乳头</option><option>肥大</option>
+                        </select>
+                        <select id="f-nipple-size" class="cute-input">
+                            <option value="">乳头大小</option>
+                            <option>绿豆大</option><option>花生大</option><option>红枣大</option><option>巨型</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="f-nipple-color" class="cute-input">
+                            <option value="">乳晕颜色</option>
+                            <option>粉嫩少女粉</option><option>蜜桃粉</option><option>浅褐色</option><option>深褐色</option><option>黑紫色</option>
+                        </select>
+                        <select id="f-nipple-sens" class="cute-input">
+                            <option value="">乳头敏感度</option>
+                            <option>无感</option><option>普通</option><option>敏感</option><option>弱点 (过电般)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="f-milk" class="cute-input">
+                            <option value="">泌乳状态</option>
+                            <option>未生育 (无奶)</option><option>孕期 (少量初乳)</option><option>哺乳期 (充沛)</option><option>回奶中 (残余)</option><option>激素异常 (溢乳)</option>
+                        </select>
+                    </div>
+
+                    <!-- 3. 私处外观 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">私处外观 (阴唇/阴蒂)</label>
+                    <div class="folder-input-row">
+                        <select id="f-labia-color" class="cute-input">
+                            <option value="">阴唇颜色</option>
+                            <option>白虎粉嫩</option><option>鲜红</option><option>暗红</option><option>浅褐</option><option>色素沉淀(黑)</option>
+                        </select>
+                        <select id="f-labia-size" class="cute-input">
+                            <option value="">大小/形态</option>
+                            <option>一线天 (紧闭)</option><option>馒头穴 (饱满)</option><option>微张</option><option>蝴蝶穴 (外翻)</option><option>海葵型 (极其肥厚)</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="f-labia-sens" class="cute-input">
+                            <option value="">阴唇敏感度</option>
+                            <option>普通</option><option>敏感</option><option>怕痒</option>
+                        </select>
+                         <select id="f-clit-color" class="cute-input">
+                            <option value="">阴蒂颜色</option>
+                            <option>粉色</option><option>充血红</option><option>深色</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="f-clit-shape" class="cute-input">
+                            <option value="">阴蒂形态</option>
+                            <option>隐形 (包皮过长)</option><option>小豆豆</option><option>凸起</option><option>小肉柱 (肥大)</option>
+                        </select>
+                        <select id="f-clit-sens" class="cute-input">
+                            <option value="">阴蒂敏感度</option>
+                            <option>普通</option><option>敏感</option><option>一碰就高潮</option><option>由于过敏无法触碰</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. 阴道内部 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">阴道内部环境</label>
+                    <div class="folder-input-row">
+                        <select id="f-vagina-in-color" class="cute-input">
+                            <option value="">内部颜色</option>
+                            <option>粉嫩肉壁</option><option>鲜红充血</option><option>深红</option>
+                        </select>
+                        <select id="f-vagina-in-shape" class="cute-input">
+                            <option value="">内部形态</option>
+                            <option>平滑</option><option>多皱褶 (名器)</option><option>紧致吸附</option><option>层层叠叠</option><option>肉粒感</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="f-vagina-sens" class="cute-input">
+                            <option value="">G点敏感度</option>
+                            <option>无感 (石女)</option><option>普通</option><option>敏感</option><option>极度敏感 (喷水)</option>
+                        </select>
+                         <select id="f-water" class="cute-input"><option value="">淫水量</option><option>干涩</option><option>普通</option><option>湿润</option><option>泛滥</option><option>喷泉</option></select>
+                    </div>
+
+                    <!-- 5. 味道 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">私处味道</label>
+                    <div class="folder-input-row">
+                        <select id="f-scent-smell" class="cute-input">
+                            <option value="">闻起来</option>
+                            <option>无味</option><option>淡淡奶香</option><option>幽兰香</option><option>浓郁麝香</option><option>海鲜腥味</option><option>尿骚味</option>
+                        </select>
+                        <select id="f-scent-taste" class="cute-input">
+                            <option value="">吃起来</option>
+                            <option>无味</option><option>微甜</option><option>微咸</option><option>微酸</option><option>浓郁体液味</option>
+                        </select>
+                    </div>
+                    </div>
+                    <div id="male-features" style="display: none;">
+                                    <h4 style="margin-bottom: 10px; color: #4facfe;"><i class="fas fa-mars"></i> 男性生理精细设定</h4>
+                    
+                    <!-- 1. 阴茎 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">阴茎设定</label>
+                    <div class="folder-input-row">
+                        <select id="m-length" class="cute-input">
+                            <option value="">长度分类</option>
+                            <option>微型 (3-5cm)</option><option>短小 (6-9cm)</option><option>普通 (10-13cm)</option>
+                            <option>长 (14-17cm)</option><option>巨根 (18-22cm)</option><option>马根 (23cm+)</option>
+                        </select>
+                         <select id="m-sens" class="cute-input">
+                            <option value="">敏感度</option>
+                            <option>迟钝 (耐磨)</option><option>普通</option><option>敏感 (早泄体质)</option><option>极度敏感</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="m-semen-vol" class="cute-input">
+                            <option value="">射精量/次</option>
+                            <option>几滴 (枯竭)</option><option>少量</option><option>普通 (一勺)</option><option>大量 (喷射)</option><option>无限 (榨汁机)</option>
+                        </select>
+                         <select id="m-thick" class="cute-input"><option value="">粗细</option><option>细牙签</option><option>普通</option><option>粗壮可乐罐</option></select>
+                    </div>
+
+                    <!-- 2. 龟头 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">龟头细节</label>
+                    <div class="folder-input-row">
+                        <select id="m-glans-size" class="cute-input">
+                            <option value="">龟头大小</option>
+                            <option>尖细</option><option>普通</option><option>硕大</option><option>蘑菇头</option>
+                        </select>
+                        <select id="m-glans-dia" class="cute-input">
+                            <option value="">直径</option>
+                            <option>小于杆身</option><option>同杆身</option><option>大于杆身(倒钩)</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="m-glans-color" class="cute-input">
+                            <option value="">颜色</option>
+                            <option>粉嫩</option><option>紫红</option><option>暗红</option><option>黑紫</option>
+                        </select>
+                        <select id="m-glans-sens" class="cute-input">
+                            <option value="">敏感等级</option>
+                            <option>铁头 (无感)</option><option>普通</option><option>敏感 (不能碰)</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="m-glans-smell" class="cute-input">
+                            <option value="">闻的味道</option>
+                            <option>清爽肥皂味</option><option>普通汗味</option><option>浓郁麝香</option><option>包皮垢腥臭</option>
+                        </select>
+                        <select id="m-glans-taste" class="cute-input">
+                            <option value="">吃的味道</option>
+                            <option>无味</option><option>微咸</option><option>微苦</option><option>浓烈海鲜味</option>
+                        </select>
+                    </div>
+
+                    <!-- 3. 阴囊 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">阴囊设定</label>
+                    <div class="folder-input-row">
+                        <select id="m-ball-size" class="cute-input">
+                            <option value="">大小</option>
+                            <option>紧致小巧</option><option>普通鸡蛋大</option><option>巨大沉重</option>
+                        </select>
+                        <select id="m-ball-color" class="cute-input">
+                            <option value="">颜色</option>
+                            <option>白皙</option><option>肉色</option><option>黑褐</option><option>全黑</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="m-ball-shape" class="cute-input">
+                            <option value="">形态</option>
+                            <option>紧贴身体</option><option>松弛下垂</option><option>不对称</option>
+                        </select>
+                        <select id="m-ball-sens" class="cute-input">
+                            <option value="">敏感度</option>
+                            <option>耐打</option><option>普通</option><option>敏感 (弱点)</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. 男性乳头 -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">男性乳头</label>
+                    <div class="folder-input-row">
+                        <select id="m-nip-size" class="cute-input"><option value="">大小</option><option>针尖</option><option>小豆豆</option><option>大乳粒</option></select>
+                        <select id="m-nip-color" class="cute-input"><option value="">颜色</option><option>粉色</option><option>褐色</option><option>黑色</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="m-nip-shape" class="cute-input"><option value="">形态</option><option>平坦</option><option>凸起</option><option>硬挺</option></select>
+                        <select id="m-nip-sens" class="cute-input"><option value="">敏感度</option><option>无感装饰</option><option>有感</option><option>开发过 (极敏)</option></select>
+                    </div>
+
+                    <!-- 5. 通用屁眼 (放在男性分类下) -->
+                    <label style="font-weight:bold; font-size:12px; color:#888;">后庭/屁眼 (通用)</label>
+                    <div class="folder-input-row">
+                        <select id="m-anus-size" class="cute-input">
+                            <option value="">大小</option>
+                            <option>极紧 (处子)</option><option>紧致</option><option>普通</option><option>松弛</option><option>扩张过 (合不拢)</option>
+                        </select>
+                        <select id="m-anus-color" class="cute-input">
+                            <option value="">颜色</option>
+                            <option>粉嫩</option><option>肉红</option><option>深褐</option><option>黑色</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                         <select id="m-anus-shape" class="cute-input">
+                            <option value="">形态</option>
+                            <option>平整菊花</option><option>轻微外翻</option><option>脱肛玫瑰</option>
+                        </select>
+                        <select id="m-anus-sens" class="cute-input">
+                            <option value="">敏感度</option>
+                            <option>无痛感</option><option>痛</option><option>快感 (前列腺)</option>
+                        </select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="m-anus-smell" class="cute-input"><option value="">闻的味道</option><option>无味</option><option>麝香</option><option>臭味</option></select>
+                        <select id="m-anus-taste" class="cute-input"><option value="">吃的味道</option><option>无味</option><option>微咸</option><option>苦</option></select>
+                    </div>
+
+                    <label style="font-weight:bold; font-size:12px; color:#888;">机能</label>
+                    <div class="folder-input-row">
+                        <select id="m-semen" class="cute-input"><option value="">精液量</option><option>稀少</option><option>普通</option><option>浓稠大量</option><option>无限</option></select>
+                        <select id="m-endurance" class="cute-input"><option value="">耐久度</option><option>秒射</option><option>几分钟</option><option>半小时</option><option>马拉松</option></select>
+                    </div>
+
+                <!-- 通用私密 -->
+                <div class="entry-card">
+                    <h4 style="margin-bottom: 10px; color: #888;"><i class="fas fa-venus-mars"></i> 通用私密特征</h4>
+                    <div class="folder-input-row">
+                        <select id="c-hair" class="cute-input"><option value="">体毛</option><option>白虎 (天生无毛)</option><option>剃净 (光滑)</option><option>稀疏</option><option>浓密</option><option>特定形状</option></select>
+                        <select id="c-anus" class="cute-input"><option value="">后庭</option><option>紧致粉嫩</option><option>普通</option><option>松弛色素沉淀</option><option>外翻</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>性爱综合评级</label>
+                        <select id="c-sex-rank" class="cute-input">
+                            <option>S级 (极品名器/巨根)</option>
+                            <option>A级 (体验极佳)</option>
+                            <option>B级 (普通)</option>
+                            <option>C级 (差评/勉强)</option>
+                            <option>D级 (灾难)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 内在设定 -->
+                <div class="entry-card">
+                    <h4 style="margin-bottom: 10px; color: var(--accent-yellow);"><i class="fas fa-brain"></i> 内在与背景</h4>
+                    
+                    <div class="form-group"><label>性格</label><input type="text" id="char-personality" class="cute-input" placeholder="例如: 傲娇、温柔..."></div>
+                    <div class="form-group"><label>性癖 (XP)</label><input type="text" id="char-fetish" class="cute-input" placeholder="例如: 捆绑、足控..."></div>
+                    <div class="folder-input-row">
+                        <input type="text" id="char-likes" class="cute-input" placeholder="喜好与习惯">
+                        <input type="text" id="char-dislikes" class="cute-input" placeholder="厌恶与忌口">
+                    </div>
+                    <div class="form-group">
+                        <label>学历/教育背景</label>
+                        <select id="char-edu" class="cute-input">
+                            <option>未受教育/文盲</option>
+                            <option>私塾/学徒</option>
+                            <option>初等教育</option>
+                            <option>高等学府</option>
+                            <option>博学多才/宗师</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>个人经历 / 背景故事</label>
+                        <textarea id="char-history" class="entry-content-area" style="min-height: 150px;"></textarea>
+                    </div>
+                </div>
+
+            </div> <!-- End Detailed Mode -->
+            
+                        <!-- =========================================
+                 新增模块：世界书绑定
+                 ========================================= -->
+            <div class="divider"><span>世界书绑定</span></div>
+            
+            <div class="entry-card">
+                <!-- 全局世界书列表 -->
+                <h4 style="margin-bottom: 10px; color: var(--accent-pink); font-size: 14px;">
+                    <i class="fas fa-globe"></i> 绑定全局世界书
+                </h4>
+                <div id="bind-global-container" style="margin-bottom: 15px;">
+                    <!-- JS 将在此处动态生成勾选框 -->
+                    <div style="color:#ccc; font-size:12px;">暂无全局设定</div>
+                </div>
+
+                <!-- 局部世界书列表 -->
+                <h4 style="margin-bottom: 10px; color: var(--accent-blue); font-size: 14px;">
+                    <i class="fas fa-map-marker-alt"></i> 绑定局部世界书
+                </h4>
+                <div id="bind-local-container">
+                    <!-- JS 将在此处动态生成勾选框 -->
+                    <div style="color:#ccc; font-size:12px;">暂无局部设定</div>
+                </div>
+            </div>
+
+            <!-- =========================================
+                 新增模块：开场白设置
+                 ========================================= -->
+            <div class="divider"><span>开场白 & 剧本</span></div>
+            
+            <div class="entry-card">
+                <div class="form-group">
+                    <label>选择开场白分类</label>
+                    <div class="folder-input-row">
+                        <select id="greeting-category" class="cute-input" style="flex:1;">
+                            <option value="first">初次见面 (Default)</option>
+                            <option value="daily">日常问候</option>
+                            <option value="intimate">亲密时刻</option>
+                            <option value="battle">战斗/对峙</option>
+                            <option value="other">其他</option>
+                        </select>
+                        
+                        <!-- 导入按钮 -->
+                        <div class="header-btn" onclick="document.getElementById('greeting-file-input').click()" 
+                             style="background: #f0f0f0; border-radius: 10px; padding: 10px 15px; font-size: 14px; cursor: pointer;">
+                            <i class="fas fa-file-import" style="color: var(--accent-blue);"></i> 导入
+                        </div>
+                        <!-- 隐藏的文件输入框 -->
+                        <input type="file" id="greeting-file-input" accept=".json,.txt,.docx,.png" style="display: none;" onchange="handleGreetingImport(this)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>开场白内容</label>
+                    <textarea id="greeting-content" class="entry-content-area" 
+          style="min-height: 120px; max-height: 200px; overflow-y: auto;" 
+          placeholder="在此输入开场白，或点击右上方按钮从文件导入..."></textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+        <!-- =========================================
+         人设面具创建弹窗 (Persona Creator)
+         ========================================= -->
+    <div id="persona-creator-modal" class="sub-page" style="z-index: 250; background: #fffcfc;">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-btn" onclick="closePersonaCreator()">取消</div>
+            </div>
+            <div class="header-title">添加人设</div>
+            <div class="header-right">
+                <div class="header-btn" onclick="savePersona()" style="color: var(--accent-blue); font-weight: bold;">完成</div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- 模式切换 -->
+            <div class="entry-card" style="display: flex; justify-content: space-between; align-items: center; background: #f0f8ff; border: 1px solid #e1eef9;">
+                <span style="font-weight: bold; color: #444;">人设模式 (关=简版 / 开=精版)</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="p-mode-switch" onchange="togglePersonaMode(this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="avatar-section">
+    <div class="avatar-wrapper" onclick="document.getElementById('p-avatar-input').click()">
+        <img id="p-avatar-preview" src="" class="avatar-img" style="display: none;">
+        <i id="p-avatar-icon" class="fas fa-mask avatar-placeholder"></i>
+    </div>
+    <div class="avatar-tip">点击更换头像</div>
+    <input type="file" id="p-avatar-input" accept="image/*" style="display: none;" onchange="handleAvatarFile(this, 'p-avatar-preview', 'p-avatar-icon')">
+</div>
+
+            <!-- 基础信息 -->
+            <div class="divider"><span>基础信息</span></div>
+            <div class="entry-card">
+                <div class="form-group"><label>真实姓名</label><input type="text" id="p-name" class="cute-input" placeholder="姓名"></div>
+                <div class="form-group"><label>小名/昵称</label><input type="text" id="p-nickname" class="cute-input" placeholder="称呼习惯"></div>
+                <div class="form-group">
+                    <label>性别</label>
+                    <select id="p-gender" class="cute-input" onchange="togglePersonaGender(this.value)">
+                        <option value="female">女性</option>
+                        <option value="male">男性</option>
+                    </select>
+                </div>
+                <!-- 简版区域 -->
+                <div id="p-simple-area">
+                    <div class="form-group"><label>人设描述</label><textarea id="p-desc-simple" class="entry-content-area" placeholder="简要设定..."></textarea></div>
+                </div>
+            </div>
+
+            <!-- 精版详细设定 -->
+            <div id="p-detailed-area" style="display: none;">
+                <!-- 身体数据 -->
+                <div class="entry-card">
+                    <h4 style="color: var(--accent-pink);">身体数据</h4>
+                    <div class="folder-input-row">
+                        <input type="number" id="p-age" class="cute-input" placeholder="年龄">
+                        <input type="date" id="p-birthday" class="cute-input" onchange="calculatePersonaZodiac(this.value)">
+                    </div>
+                    <div class="form-group"><input type="text" id="p-zodiac" class="cute-input" readonly placeholder="星座自动生成"></div>
+                    <div class="folder-input-row">
+                        <input type="text" id="p-height" class="cute-input" placeholder="身高cm">
+                        <input type="text" id="p-weight" class="cute-input" placeholder="体重kg">
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="p-bodytype" class="cute-input"><option value="">体型</option><option>超瘦</option><option>苗条</option><option>匀称</option><option>丰满</option><option>健壮</option><option>超胖</option></select>
+                        <select id="p-waist-hip" class="cute-input"><option value="">腰臀</option><option>杨柳细腰</option><option>普通</option><option>蜜桃臀</option><option>宽胯</option></select>
+                    </div>
+                </div>
+
+                <!-- 外貌 -->
+                <div class="entry-card">
+                    <h4 style="color: var(--accent-pink);">外貌特征</h4>
+                    <div class="form-group"><input type="text" id="p-hair" class="cute-input" placeholder="发型/发色"></div>
+                    <div class="form-group"><input type="text" id="p-face" class="cute-input" placeholder="面部特征"></div>
+                    <div class="form-group">
+                        <select id="p-skin" class="cute-input"><option value="">皮肤</option><option>白皙</option><option>小麦色</option><option>黝黑</option><option>苍白</option></select>
+                    </div>
+                    <div class="form-group"><textarea id="p-marks" class="cute-input" placeholder="痣/胎记/疤痕 (部位、大小、颜色)"></textarea></div>
+                </div>
+                
+                <div id="p-female-features">
+                                    <h4 style="color: #ff6b81;">女性人设·精细版</h4>
+                    
+                    <!-- 痣/印记 -->
+                    <div class="folder-input-row">
+                        <select id="pf-mark-type" class="cute-input"><option value="">印记形态</option><option>泪痣</option><option>美人痣</option><option>疤痕</option></select>
+                        <input type="text" id="pf-mark-loc" class="cute-input" placeholder="部位/颜色/大小">
+                    </div>
+
+                    <!-- 乳房 -->
+                    <div class="folder-input-row">
+                        <select id="pf-cup" class="cute-input"><option value="">罩杯</option><option>AAA</option><option>AA</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F+</option></select>
+                        <select id="pf-breast-sens" class="cute-input"><option value="">乳房敏感</option><option>迟钝</option><option>敏感</option><option>超敏</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="pf-nipple-shape" class="cute-input"><option value="">乳头形态</option><option>内陷</option><option>凸起</option><option>大乳头</option></select>
+                        <select id="pf-nipple-sens" class="cute-input"><option value="">乳头敏感</option><option>无感</option><option>敏感</option><option>弱点</option></select>
+                    </div>
+                    <div class="form-group">
+                        <select id="pf-milk" class="cute-input"><option value="">奶量</option><option>无</option><option>孕期少许</option><option>充沛</option><option>溢出</option></select>
+                    </div>
+
+                    <!-- 私处 -->
+                    <div class="folder-input-row">
+                        <select id="pf-labia-color" class="cute-input"><option value="">阴唇颜色</option><option>粉嫩</option><option>深红</option><option>黑</option></select>
+                        <select id="pf-labia-sens" class="cute-input"><option value="">阴唇敏感</option><option>普通</option><option>高</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="pf-clit-shape" class="cute-input"><option value="">阴蒂形态</option><option>隐形</option><option>豆豆</option><option>肥大</option></select>
+                        <select id="pf-clit-sens" class="cute-input"><option value="">阴蒂敏感</option><option>普通</option><option>极高</option></select>
+                    </div>
+
+                    <!-- 内部 -->
+                    <div class="folder-input-row">
+                         <select id="pf-vagina-color" class="cute-input"><option value="">内壁颜色</option><option>粉</option><option>红</option><option>深</option></select>
+                         <select id="pf-vagina-shape" class="cute-input"><option value="">内壁形态</option><option>平滑</option><option>多褶</option><option>紧致</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="pf-water" class="cute-input"><option value="">水多吗</option><option>干</option><option>普</option><option>多</option><option>喷</option></select>
+                        <input type="text" id="pf-scent" class="cute-input" placeholder="味道 (吃/闻)">
+                    </div>
+                    </div>
+                    <div id="p-male-features" style="display: none;">
+                                    <h4 style="color: #4facfe;">男性人设·精细版</h4>
+                    
+                    <!-- 阴茎 -->
+                    <div class="folder-input-row">
+                        <select id="pm-length" class="cute-input"><option value="">长度</option><option>短小</option><option>普通</option><option>长</option><option>巨根</option></select>
+                        <select id="pm-sens" class="cute-input"><option value="">敏感度</option><option>迟钝</option><option>普通</option><option>秒射</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="pm-semen" class="cute-input"><option value="">射精量</option><option>少</option><option>多</option><option>无限</option></select>
+                        <select id="pm-thick" class="cute-input"><option value="">粗细</option><option>细</option><option>粗</option></select>
+                    </div>
+
+                    <!-- 龟头 -->
+                    <div class="folder-input-row">
+                        <select id="pm-glans-size" class="cute-input"><option value="">龟头大小</option><option>小</option><option>大伞</option></select>
+                        <select id="pm-glans-color" class="cute-input"><option value="">颜色</option><option>粉</option><option>紫</option><option>黑</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                         <select id="pm-glans-sens" class="cute-input"><option value="">龟头敏感</option><option>铁头</option><option>敏感</option></select>
+                         <input type="text" id="pm-glans-taste" class="cute-input" placeholder="龟头味道 (吃/闻)">
+                    </div>
+
+                    <!-- 阴囊 & 乳头 -->
+                    <div class="folder-input-row">
+                        <select id="pm-ball-size" class="cute-input"><option value="">阴囊大小</option><option>小</option><option>大</option></select>
+                        <select id="pm-ball-sens" class="cute-input"><option value="">阴囊敏感</option><option>低</option><option>高</option></select>
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="pm-nip-size" class="cute-input"><option value="">乳头</option><option>小</option><option>大</option></select>
+                        <select id="pm-nip-sens" class="cute-input"><option value="">乳头敏感</option><option>无</option><option>有</option></select>
+                    </div>
+
+                    <!-- 屁眼 -->
+                    <div class="folder-input-row">
+                        <select id="pm-anus-size" class="cute-input"><option value="">后庭松紧</option><option>紧</option><option>松</option></select>
+                        <select id="pm-anus-sens" class="cute-input"><option value="">后庭敏感</option><option>无</option><option>爽</option></select>
+                    </div>
+                    <div class="form-group">
+                         <input type="text" id="pm-anus-taste" class="cute-input" placeholder="后庭味道 (吃/闻)">
+                    </div>
+                    <div class="folder-input-row">
+                        <select id="pm-semen" class="cute-input"><option value="">精量</option><option>少</option><option>多</option><option>浓</option></select>
+                        <select id="pm-endurance" class="cute-input"><option value="">耐久</option><option>快枪手</option><option>普通</option><option>持久</option></select>
+                    </div>
+
+                <!-- 通用设定 -->
+                <div class="entry-card">
+                    <h4 style="color: #888;">通用 & 内在</h4>
+                    <div class="folder-input-row">
+                        <select id="pc-hair" class="cute-input"><option value="">私处体毛</option><option>白虎</option><option>修剪</option><option>浓密</option></select>
+                        <select id="pc-anus" class="cute-input"><option value="">后庭</option><option>粉嫩</option><option>紧致</option><option>松弛</option></select>
+                    </div>
+                    <div class="form-group">
+                        <select id="pc-rank" class="cute-input"><option value="">性爱等级</option><option>S级</option><option>A级</option><option>B级</option><option>C级(差评)</option></select>
+                    </div>
+                    <div class="form-group"><input type="text" id="p-personality" class="cute-input" placeholder="性格"></div>
+                    <div class="form-group"><input type="text" id="p-fetish" class="cute-input" placeholder="性癖 (XP)"></div>
+                    <div class="folder-input-row">
+                        <input type="text" id="p-likes" class="cute-input" placeholder="喜好">
+                        <input type="text" id="p-dislikes" class="cute-input" placeholder="厌恶">
+                    </div>
+                    <div class="form-group">
+                        <select id="p-edu" class="cute-input"><option value="">学历</option><option>文盲</option><option>私塾</option><option>初等</option><option>高等</option><option>博学</option></select>
+                    </div>
+                    <div class="form-group"><textarea id="p-history" class="entry-content-area" placeholder="经历背景..."></textarea></div>
+                    </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         文件夹管理弹窗
+         ========================================= -->
+    <div id="folder-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>文件夹管理</h3>
+            <div class="folder-input-row">
+                <input type="text" id="new-folder-name" class="cute-input" placeholder="新分类名称">
+                <button class="cute-btn" onclick="addFolder()">新增</button>
+            </div>
+            <div id="folder-list" class="folder-list">
+                <!-- JS 渲染列表 -->
+            </div>
+            <div class="modal-actions">
+                <button class="cute-btn secondary" onclick="closeFolderModal()">关闭</button>
+                <button class="cute-btn primary" onclick="saveFolders()">保存修改</button>
+            </div>
+        </div>
+    </div>
+    
+    </div>
+
+    <script>
+        // 1. 更新顶部时间
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 2. 强力禁止侧滑返回逻辑
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, location.href);
+        });
+
+        // 阻止触摸默认行为
+        document.body.addEventListener('touchmove', function(e) {
+            // 如果在世界书页面的内容区，允许滚动，否则禁止
+            if (e.target.closest('.page-content')) {
+                // 允许
+            } else {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // 震动反馈
+        document.querySelectorAll('.app-icon, .polaroid, .dock-item, .header-btn, .book-item').forEach(el => {
+            el.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(10);
+            });
+        });
+
+        // =========================================
+        // 页面切换逻辑
+        // =========================================
+        function openWorldBook() {
+            document.getElementById('world-book-page').classList.add('active');
+            // 每次打开都重置为全局设定
+            switchBookTab('global');
+        }
+        
+        function closeWorldBook() {
+            document.getElementById('world-book-page').classList.remove('active');
+        }
+        
+        // =========================================
+        // 世界书核心逻辑 (已更新分区功能)
+        // =========================================
+
+        // --- 在脚本最上方或变量声明区域添加以下代码 ---
+
+        // 初始化角色列表数据
+        let characterList = JSON.parse(localStorage.getItem('characterList') || '[]');
+
+        // 初始化人设面具数据
+        let personaList = JSON.parse(localStorage.getItem('personaList') || '[]');
+        let activePersonaId = localStorage.getItem('activePersonaId') || null;
+
+        let worldBooksData = [
+            { id: 1, type: 'global', title: "艾尔利亚大陆史", folder: "默认分类", entries: [] },
+            { id: 2, type: 'local', title: "星际联邦档案 (角色专属)", folder: "科幻", entries: [] }
+        ];
+        
+        // 当前选中的 Tab，默认为全局
+        let currentBookTab = 'global'; 
+        let folderCategories = ["默认分类", "科幻", "现代", "奇幻"];
+        let currentEditingBookId = null;
+
+        // --- 切换 Tab 的功能 ---
+        function switchBookTab(type) {
+            currentBookTab = type;
+            
+            // 更新按钮样式
+            document.querySelectorAll('.wb-tab-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+            
+            // 重新渲染列表
+            renderBookList();
+        }
+
+        // --- 渲染列表 (只渲染当前 Tab 类型的数据) ---
+        function renderBookList() {
+            const container = document.querySelector('#world-book-page .page-content');
+            if(!container) return;
+            
+            container.innerHTML = ""; 
+
+            // 关键：只过滤出当前 Tab 类型 (global 或 local) 的书
+            const filteredBooks = worldBooksData.filter(book => book.type === currentBookTab);
+
+            if (filteredBooks.length === 0) {
+                container.innerHTML = `<div style="text-align:center; margin-top:50px; color:#ccc;">暂无${currentBookTab === 'global' ? '全局' : '局部'}设定</div>`;
+                return;
+            }
+
+            filteredBooks.forEach(book => {
+                const item = document.createElement('div');
+                item.className = 'book-item';
+                
+                // 长按删除逻辑
+                let pressTimer = null;
+                let isLongPress = false;
+
+                item.addEventListener('touchstart', (e) => {
+                    isLongPress = false;
+                    pressTimer = setTimeout(() => {
+                        isLongPress = true;
+                        if (confirm(`确定要彻底删除${currentBookTab === 'global'?'全局':'局部'}设定《${book.title}》吗？`)) {
+                            worldBooksData = worldBooksData.filter(b => b.id !== book.id);
+                            renderBookList();
+                        }
+                    }, 800);
+                });
+
+                item.addEventListener('touchmove', () => { clearTimeout(pressTimer); isLongPress = false; });
+
+                item.addEventListener('touchend', (e) => {
+                    clearTimeout(pressTimer);
+                    if (!isLongPress) {
+                        editBook(book.id);
+                    }
+                    e.preventDefault();
+                });
+                
+                // 电脑端右键删除
+                item.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    if (confirm(`确定要彻底删除《${book.title}》吗？`)) {
+                        worldBooksData = worldBooksData.filter(b => b.id !== book.id);
+                        renderBookList();
+                    }
+                });
+
+                // 不同类型显示不同图标颜色以示区分
+                const iconColor = currentBookTab === 'global' 
+                    ? 'linear-gradient(135deg, #FF9A9E, #FECFEF)' // 全局是粉色
+                    : 'linear-gradient(135deg, #84fab0, #8fd3f4)'; // 局部是蓝色
+
+                item.innerHTML = `
+                    <div class="book-cover" style="background: ${iconColor};">
+                        <i class="fas ${currentBookTab === 'global' ? 'fa-globe' : 'fa-user-tag'}"></i>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-meta">${book.folder} · ${book.entries.length} 条目</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#eee;"></i>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // --- 导入功能 (自动归类到当前 Tab) ---
+        function triggerImport() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function handleFileImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const fileName = file.name;
+                let parsedEntries = []; 
+
+                if (fileName.toLowerCase().endsWith('.json')) {
+                    try {
+                        const json = JSON.parse(content);
+                        let sourceData = [];
+
+                        if (json.entries) {
+                            sourceData = Array.isArray(json.entries) ? json.entries : Object.values(json.entries);
+                        } else if (Array.isArray(json)) {
+                            sourceData = json;
+                        } else {
+                            sourceData = Object.values(json).filter(item => typeof item === 'object');
+                        }
+
+                        parsedEntries = sourceData.map(item => {
+                            let keyStr = "";
+                            if (Array.isArray(item.key)) keyStr = item.key.join(',');
+                            else if (item.key) keyStr = item.key.toString();
+                            else if (item.keys) keyStr = item.keys.toString();
+
+                            return {
+                                id: Date.now() + Math.random(),
+                                enabled: item.enabled !== false,
+                                remark: item.comment || item.name || item.title || "导入条目",
+                                keys: keyStr,
+                                content: item.content || item.value || item.description || ""
+                            };
+                        });
+                        
+                        parsedEntries = parsedEntries.filter(e => e.content || e.keys || e.remark !== "导入条目");
+                    } catch (err) {
+                        alert("JSON 格式错误");
+                        input.value = '';
+                        return;
+                    }
+                }
+
+                if (parsedEntries.length === 0) {
+                    parsedEntries.push({
+                        id: Date.now(),
+                        enabled: true,
+                        remark: fileName, 
+                        keys: "",
+                        content: content
+                    });
+                }
+
+                // 创建新书：注意这里加上了 type: currentBookTab
+                const newBook = {
+                    id: Date.now(),
+                    type: currentBookTab, // 关键：导入到当前选中的页面
+                    title: fileName.replace(/\.[^/.]+$/, ""),
+                    folder: "默认分类",
+                    entries: parsedEntries
+                };
+
+                worldBooksData.unshift(newBook); 
+                renderBookList(); 
+                
+                alert(`已导入到[${currentBookTab === 'global' ? '全局' : '局部'}]设定：\n"${newBook.title}"`);
+                input.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        // --- 3. 文件夹管理 ---
+        function openFolderManager() {
+            const modal = document.getElementById('folder-modal');
+            modal.style.display = 'flex';
+            renderFolderListInModal();
+        }
+
+        function renderFolderListInModal() {
+            const list = document.getElementById('folder-list');
+            list.innerHTML = folderCategories.map((f, index) => `
+                <div class="folder-item-row">
+                    <span>${f}</span>
+                    ${index > 0 ? `<i class="fas fa-trash" style="color:#ff6b6b; cursor:pointer;" onclick="deleteFolder(${index})"></i>` : ''} 
+                </div>
+            `).join('');
+        }
+
+        function addFolder() {
+            const input = document.getElementById('new-folder-name');
+            const name = input.value.trim();
+            if (name && !folderCategories.includes(name)) {
+                folderCategories.push(name);
+                input.value = '';
+                renderFolderListInModal();
+            }
+        }
+
+        function deleteFolder(index) {
+            if(confirm("确定删除这个分类名吗？")) {
+                folderCategories.splice(index, 1);
+                renderFolderListInModal();
+            }
+        }
+
+        function saveFolders() {
+            // 实际应用中这里应该保存到 localStorage
+            closeFolderModal();
+            alert("文件夹分类已保存");
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folder-modal').style.display = 'none';
+        }
+
+        // --- 4. 创建/编辑世界书 ---
+        
+        function createNewBook() {
+            // 输入书名
+            const title = prompt("请输入新世界书的名称：");
+            if (title) {
+                const newBook = {
+                    id: Date.now(),
+                    type: currentBookTab, // 记录创建时的类型
+                    title: title,
+                    folder: folderCategories[0],
+                    entries: []
+                };
+                worldBooksData.unshift(newBook);
+                editBook(newBook.id); // 直接进入编辑模式
+            }
+        }
+
+        function editBook(id) {
+            currentEditingBookId = id;
+            const book = worldBooksData.find(b => b.id === id);
+            if (!book) return;
+
+            // 填充数据到编辑器
+            document.getElementById('editor-page').classList.add('active');
+            document.getElementById('book-name-input').value = book.title;
+            
+            // 填充文件夹下拉框
+            const folderSelect = document.getElementById('book-folder-select');
+            folderSelect.innerHTML = folderCategories.map(f => 
+                `<option value="${f}" ${f === book.folder ? 'selected' : ''}>${f}</option>`
+            ).join('');
+
+            // 渲染条目
+            renderEntries(book.entries);
+        }
+
+        function renderEntries(entries) {
+            const container = document.getElementById('entries-container');
+            container.innerHTML = "";
+
+            entries.forEach((entry, index) => {
+                const entryEl = document.createElement('div');
+                entryEl.className = 'entry-card';
+                entryEl.innerHTML = `
+                    <div class="entry-header" style="display: flex; align-items: center; gap: 8px;">
+                        
+                        <!-- 1. 备注输入框 -->
+                        <input type="text" class="cute-input" 
+                               style="flex: 1; margin:0; padding: 10px; min-width: 0; font-weight:bold;" 
+                               value="${entry.remark}" 
+                               onchange="updateEntryRemark(${index}, this.value)" 
+                               placeholder="条目备注 (名字)">
+
+                        <!-- 2. 开关按钮 -->
+                        <label class="toggle-switch" style="flex-shrink: 0; transform: scale(0.9);">
+                            <input type="checkbox" ${entry.enabled ? 'checked' : ''} onchange="updateEntryStatus(${index}, this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                               
+                        <!-- 3. 删除图标 -->
+                        <i class="fas fa-trash delete-entry" style="flex-shrink: 0; padding: 8px;" onclick="deleteEntry(${index})"></i>
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <input type="text" class="cute-input" 
+                               style="font-size: 13px; padding: 10px; background: #fafafa; border: 1px dashed #eee; width: 100%;" 
+                               value="${entry.keys || ''}" 
+                               placeholder="关键词 (例如: 战士,男性,主角 - 逗号分隔)" 
+                               onchange="updateEntryKeys(${index}, this.value)">
+                    </div>
+
+                    <textarea class="entry-content-area" 
+                              style="width: 100%; box-sizing: border-box; min-height: 200px; padding: 12px; line-height: 1.5; font-size: 14px;"
+                              placeholder="输入条目内容..." 
+                              onchange="updateEntryContent(${index}, this.value)">${entry.content}</textarea>
+                `;
+                container.appendChild(entryEl);
+            });
+        }
+
+        // 更新条目数据的辅助函数
+        function updateEntryStatus(index, status) {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if(book) book.entries[index].enabled = status;
+        }
+        function updateEntryRemark(index, val) {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if(book) book.entries[index].remark = val;
+        }
+        function updateEntryKeys(index, val) {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if(book) book.entries[index].keys = val;
+        }
+        function updateEntryContent(index, val) {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if(book) book.entries[index].content = val;
+        }
+        function deleteEntry(index) {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if(book && confirm("删除此条目？")) {
+                book.entries.splice(index, 1);
+                renderEntries(book.entries);
+            }
+        }
+        
+        function addNewEntry() {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if(book) {
+                book.entries.push({
+                    id: Date.now(),
+                    enabled: true,
+                    remark: "新条目",
+                    keys: "", 
+                    content: ""
+                });
+                renderEntries(book.entries);
+            }
+        }
+
+        function saveCurrentBook() {
+            const book = worldBooksData.find(b => b.id === currentEditingBookId);
+            if (book) {
+                book.title = document.getElementById('book-name-input').value;
+                book.folder = document.getElementById('book-folder-select').value;
+                
+                alert("保存成功！");
+                renderBookList(); // 更新外面的列表
+            }
+        }
+
+        function closeEditor() {
+            document.getElementById('editor-page').classList.remove('active');
+            renderBookList(); 
+        }
+        
+                // =========================================
+        // 设置页面逻辑 (新增)
+        // =========================================
+
+        // 1. 打开/关闭设置页面
+        function openSettings() {
+            document.getElementById('settings-page').classList.add('active');
+            
+            // 读取已保存的设置 (模拟)
+            const config = JSON.parse(localStorage.getItem('appConfig')) || {};
+            if(config.apiUrl) document.getElementById('api-url').value = config.apiUrl;
+            if(config.apiKey) document.getElementById('api-key').value = config.apiKey;
+            if(config.model) document.getElementById('api-model').value = config.model;
+            
+            // 读取悬浮球状态
+            const ballEnabled = localStorage.getItem('floatBallEnabled') === 'true';
+            document.getElementById('float-ball-switch').checked = ballEnabled;
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-page').classList.remove('active');
+        }
+
+        // 2. 保存 API 设置
+        function saveApiSettings() {
+            const apiUrl = document.getElementById('api-url').value;
+            const apiKey = document.getElementById('api-key').value;
+            const model = document.getElementById('api-model').value;
+            
+            const config = { apiUrl, apiKey, model };
+            localStorage.setItem('appConfig', JSON.stringify(config));
+            alert('API 配置已保存');
+        }
+
+        // 3. 图标样式实时预览
+        function changeIconStyle(radius) {
+            // 实时改变页面上所有 app-icon 的圆角
+            const icons = document.querySelectorAll('.app-icon');
+            icons.forEach(icon => {
+                icon.style.borderRadius = radius + '%';
+            });
+        }
+
+        // 4. 悬浮球开关逻辑
+        function toggleFloatBall(isChecked) {
+            const ball = document.getElementById('assist-ball');
+            if (isChecked) {
+                ball.style.display = 'flex';
+                localStorage.setItem('floatBallEnabled', 'true');
+            } else {
+                ball.style.display = 'none';
+                localStorage.setItem('floatBallEnabled', 'false');
+            }
+        }
+
+        // 初始化：检查是否需要显示悬浮球
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('floatBallEnabled') === 'true') {
+                document.getElementById('assist-ball').style.display = 'flex';
+                document.getElementById('float-ball-switch').checked = true;
+            }
+        });
+
+        // 简单的悬浮球点击交互（示例）
+        document.getElementById('assist-ball').addEventListener('click', () => {
+            alert("悬浮球功能触发：可以绑定快捷操作");
+        });
+        
+        // 简单的悬浮球拖拽逻辑 (可选)
+        const ball = document.getElementById('assist-ball');
+        let isDragging = false;
+        let startY, startBottom;
+
+        ball.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startY = e.touches[0].clientY;
+            // 获取当前的 bottom 值
+            const style = window.getComputedStyle(ball);
+            startBottom = parseInt(style.bottom);
+        });
+
+        ball.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault(); // 防止页面滚动
+            const deltaY = startY - e.touches[0].clientY; // 向上拖动 deltaY 为正
+            ball.style.bottom = (startBottom + deltaY) + 'px';
+        });
+
+        ball.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+                        // =========================================
+        // API 页面专属逻辑 (分类管理增强版)
+        // =========================================
+        
+        let savedApiConfigs = JSON.parse(localStorage.getItem('savedApiConfigs') || '[]');
+
+        function openApiPage() {
+            document.getElementById('api-sub-page').classList.add('active');
+            renderApiConfigList();
+            updateCategoryDatalist();
+            
+            // 回填当前正在使用的配置
+            const current = JSON.parse(localStorage.getItem('appConfig')) || {};
+            if(current.apiUrl) document.getElementById('detail-api-url').value = current.apiUrl;
+            if(current.apiKey) document.getElementById('detail-api-key').value = current.apiKey;
+            if(current.model) document.getElementById('detail-api-model').value = current.model;
+            // 回填分类，如果没有记录则默认显示“默认分类”
+            document.getElementById('api-category').value = current.category || '默认分类';
+            
+            if(current.temp) {
+                document.getElementById('api-temp').value = current.temp;
+                document.getElementById('temp-value').innerText = current.temp;
+            }
+        }
+
+        function closeApiPage() {
+            document.getElementById('api-sub-page').classList.remove('active');
+        }
+
+        // 更新分类建议列表 (Datalist)
+        function updateCategoryDatalist() {
+            const list = document.getElementById('category-options');
+            const categories = [...new Set(savedApiConfigs.map(c => c.category || '默认分类'))];
+            list.innerHTML = categories.map(c => `<option value="${c}">`).join('');
+        }
+
+                // 刷新模型列表 (新版：弹出列表自选)
+        async function fetchModelsFromApi() {
+            const url = document.getElementById('detail-api-url').value;
+            const key = document.getElementById('detail-api-key').value;
+            
+            if(!url || !key) { alert("请先填写 API 地址和 Key"); return; }
+
+            const btn = event.currentTarget;
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin'); // 图标旋转
+
+            // 打开弹窗
+            const modal = document.getElementById('model-select-modal');
+            const list = document.getElementById('model-list-container');
+            modal.style.display = 'flex';
+            list.innerHTML = '<div style="padding: 30px; text-align: center; color: #888;"><i class="fas fa-spinner fa-spin"></i> 正在连接 API 获取模型...</div>';
+
+            try {
+                // 路径处理兼容
+                let targetUrl = url;
+                if (!url.endsWith('models')) {
+                    targetUrl = url.endsWith('/') ? `${url}models` : `${url}/models`;
+                }
+                
+                const response = await fetch(targetUrl, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${key}` }
+                });
+
+                if(response.ok) {
+                    const data = await response.json();
+                    if(data.data && Array.isArray(data.data)) {
+                        // 简单的排序，让短名字(通常是主模型)靠前
+                        const models = data.data.map(m => m.id).sort((a,b) => a.length - b.length);
+                        
+                        if(models.length === 0) {
+                            list.innerHTML = '<div style="padding: 20px; text-align: center;">未找到可用模型</div>';
+                        } else {
+                            // 生成选择列表
+                            list.innerHTML = models.map(m => `
+                                <div onclick="selectModel('${m}')" 
+                                     style="padding: 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="font-weight: 500; color: #444;">${m}</span>
+                                    <i class="fas fa-chevron-right" style="font-size: 10px; color: #ddd;"></i>
+                                </div>
+                            `).join('');
+                        }
+                    } else {
+                        list.innerHTML = '<div style="padding: 20px; text-align: center; color: #ff6b6b;">获取成功，但格式无法解析</div>';
+                    }
+                } else {
+                    list.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff6b6b;">获取失败: 状态码 ${response.status}</div>`;
+                }
+            } catch (e) {
+                list.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff6b6b;">请求出错: ${e.message}</div>`;
+            } finally {
+                icon.classList.remove('fa-spin');
+            }
+        }
+
+        // 选中模型
+        function selectModel(modelName) {
+            document.getElementById('detail-api-model').value = modelName;
+            document.getElementById('model-select-modal').style.display = 'none';
+            // 震动反馈 (如果支持)
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        // 保存配置 (带分类)
+        function saveNewApiConfig() {
+            const apiUrl = document.getElementById('detail-api-url').value;
+            const apiKey = document.getElementById('detail-api-key').value;
+            const model = document.getElementById('detail-api-model').value;
+            const temp = document.getElementById('api-temp').value;
+            // 获取分类，为空则默认
+            const category = document.getElementById('api-category').value.trim() || '默认分类';
+
+            if(!apiUrl) { alert("请输入 API 地址"); return; }
+
+            const newConfig = {
+                id: Date.now(),
+                apiUrl, apiKey, model, temp, category,
+                name: model || "未命名配置"
+            };
+
+            savedApiConfigs.unshift(newConfig);
+            localStorage.setItem('savedApiConfigs', JSON.stringify(savedApiConfigs));
+
+            // 保存为当前应用配置
+            const appConfig = { apiUrl, apiKey, model, temp, category };
+            localStorage.setItem('appConfig', JSON.stringify(appConfig));
+            
+            alert(`已保存到分类 [${category}] 并应用！`);
+            renderApiConfigList();
+            updateCategoryDatalist();
+        }
+
+        // 渲染配置列表 (核心：按分类分组)
+        function renderApiConfigList() {
+            const container = document.getElementById('api-config-list');
+            container.innerHTML = "";
+
+            if(savedApiConfigs.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:#ccc; font-size:12px; margin-top:20px;">暂无保存的配置</div>`;
+                return;
+            }
+
+            // 1. 数据分组
+            const groups = {};
+            savedApiConfigs.forEach(config => {
+                const cat = config.category || '默认分类';
+                if(!groups[cat]) groups[cat] = [];
+                groups[cat].push(config);
+            });
+
+            // 2. 渲染分组
+            Object.keys(groups).forEach(catName => {
+                // 分类标题栏
+                const groupHeader = document.createElement('div');
+                groupHeader.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px 5px; margin-top:10px; border-bottom:1px solid #eee;";
+                groupHeader.innerHTML = `
+                    <div style="font-weight:bold; color:var(--text-color); font-size:14px;">
+                        <i class="fas fa-folder-open" style="color:var(--accent-yellow); margin-right:5px;"></i> ${catName}
+                    </div>
+                    <i class="fas fa-edit" style="color:#aaa; cursor:pointer; font-size:12px;" onclick="renameApiCategory('${catName}')" title="重命名分类"></i>
+                `;
+                container.appendChild(groupHeader);
+
+                // 分类下的条目
+                groups[catName].forEach(config => {
+                    const item = document.createElement('div');
+                    item.className = 'entry-card';
+                    item.style.cssText = "margin:10px 0; padding:10px; border:1px solid #f9f9f9; background:#fff;";
+                    
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+                                <input type="checkbox" class="api-delete-checkbox" value="${config.id}" style="width: 18px; height: 18px; accent-color: #ff6b6b;">
+                                <div style="cursor: pointer;" onclick="loadApiConfig(${config.id})">
+                                    <div style="font-weight: bold; font-size: 14px; color: #444;">${config.model || 'Unknown Model'} <span style="font-weight:normal; color:#aaa; font-size:12px;">(Temp: ${config.temp})</span></div>
+                                    <div style="font-size: 10px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${config.apiUrl}</div>
+                                </div>
+                            </div>
+                            <button class="cute-btn secondary" style="font-size: 12px; padding: 4px 8px;" onclick="loadApiConfig(${config.id})">应用</button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            });
+        }
+
+        // 修改分类名称
+        function renameApiCategory(oldName) {
+            const newName = prompt(`请输入 [${oldName}] 的新分类名称：`, oldName);
+            if(newName && newName.trim() !== "" && newName !== oldName) {
+                // 更新所有属于该分类的配置
+                savedApiConfigs.forEach(c => {
+                    if((c.category || '默认分类') === oldName) {
+                        c.category = newName.trim();
+                    }
+                });
+                localStorage.setItem('savedApiConfigs', JSON.stringify(savedApiConfigs));
+                renderApiConfigList();
+                updateCategoryDatalist();
+                alert("分类名称已更新");
+            }
+        }
+
+        // 加载配置
+        function loadApiConfig(id) {
+            const config = savedApiConfigs.find(c => c.id === id);
+            if(config) {
+                document.getElementById('detail-api-url').value = config.apiUrl;
+                document.getElementById('detail-api-key').value = config.apiKey;
+                document.getElementById('detail-api-model').value = config.model;
+                document.getElementById('api-temp').value = config.temp;
+                document.getElementById('temp-value').innerText = config.temp;
+                document.getElementById('api-category').value = config.category || '默认分类';
+                
+                // 应用配置
+                localStorage.setItem('appConfig', JSON.stringify(config));
+                alert(`已加载配置：${config.model}`);
+            }
+        }
+
+        // 批量删除
+        function batchDeleteApiConfigs() {
+            const checkboxes = document.querySelectorAll('.api-delete-checkbox:checked');
+            if(checkboxes.length === 0) {
+                alert("请先勾选要删除的配置");
+                return;
+            }
+
+            if(confirm(`确定删除选中的 ${checkboxes.length} 条配置吗？`)) {
+                const idsToDelete = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                savedApiConfigs = savedApiConfigs.filter(c => !idsToDelete.includes(c.id));
+                localStorage.setItem('savedApiConfigs', JSON.stringify(savedApiConfigs));
+                renderApiConfigList();
+                updateCategoryDatalist();
+            }
+        }
+        
+                        // =========================================
+        // 新增：图片处理辅助函数
+        // =========================================
+        function handleAvatarFile(input, imgId, iconId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById(imgId);
+                    const icon = document.getElementById(iconId);
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    icon.style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 辅助：重置头像显示
+        function resetAvatarDisplay(imgId, iconId) {
+            document.getElementById(imgId).src = "";
+            document.getElementById(imgId).style.display = 'none';
+            document.getElementById(iconId).style.display = 'block';
+        }
+
+        // =========================================
+        // 更新：角色档案逻辑 (带头像)
+        // =========================================
+        
+        // --- 核心修复代码：放在“更新：角色档案逻辑”注释下方 ---
+
+// 1. 打开角色档案APP (修复版)
+function openCharacterPage() {
+    const page = document.getElementById('character-page');
+    if(page) {
+        page.classList.add('active');
+        // 只调用切换Tab，它内部会自动渲染列表，不要在这里重复调用 renderCharacterList()
+        switchCharTab('list'); 
+    } else {
+        console.error("未找到 ID 为 character-page 的元素");
+    }
+}
+
+// 2. 关闭角色档案APP
+function closeCharacterPage() {
+    document.getElementById('character-page').classList.remove('active');
+}
+
+// 3. 底部 Tab 切换逻辑 (列表 <-> 个人中心)
+function switchCharTab(tabName) {
+    // 1. 处理底部高亮样式
+    document.querySelectorAll('#character-page .wb-tab-item').forEach(el => {
+        el.classList.remove('active');
+    });
+    document.getElementById('tab-char-' + tabName).classList.add('active');
+
+    // 2. 处理内容区显示
+    const listContent = document.getElementById('character-list-content');
+    const personalContent = document.getElementById('character-personal-content');
+
+    if (tabName === 'list') {
+        listContent.style.display = 'block';
+        personalContent.style.display = 'none';
+        renderCharacterList(); // 刷新列表
+    } else {
+        listContent.style.display = 'none';
+        personalContent.style.display = 'block';
+        renderPersonaList(); // 刷新个人中心的列表
+    }
+}
+
+// 4. 个人中心折叠面板逻辑 (点击人设面具头部收缩/展开)
+function togglePersonaAccordion() {
+    const container = document.getElementById('persona-list-container');
+    const arrow = document.getElementById('persona-arrow');
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        arrow.style.transform = 'rotate(0deg)';
+    } else {
+        container.style.display = 'none';
+        arrow.style.transform = 'rotate(-90deg)';
+    }
+}
+
+                        function openCharCreator() {
+            try {
+                // 1. 尝试重置所有输入框
+                document.querySelectorAll('#char-creator-modal input, #char-creator-modal textarea, #char-creator-modal select').forEach(el => el.value = '');
+                
+                // 2. 尝试重置性别选择 (带容错)
+                const genderSelect = document.getElementById('char-gender');
+                if(genderSelect) {
+                    genderSelect.value = 'female';
+                    if(typeof toggleGenderFields === 'function') toggleGenderFields('female');
+                }
+
+                // 3. 尝试重置模式开关 (带容错)
+                const modeSwitch = document.getElementById('mode-switch');
+                if(modeSwitch) {
+                    modeSwitch.checked = false;
+                    if(typeof toggleCharMode === 'function') toggleCharMode(false);
+                }
+                
+                // 4. 尝试重置头像 (带容错)
+                const avatarInput = document.getElementById('char-avatar-input');
+                if(avatarInput) avatarInput.value = '';
+                
+                // 确保 resetAvatarDisplay 函数存在再调用
+                if(typeof resetAvatarDisplay === 'function') {
+                    resetAvatarDisplay('char-avatar-preview', 'char-avatar-icon');
+                }
+
+            } catch (e) {
+                console.log("重置表单时出现小问题，但不影响打开:", e);
+            }
+
+            // [新增]：打开弹窗时，渲染世界书绑定列表
+            // 传入空数组 [] 代表是新建角色，没有预先选中的书
+            if(typeof renderWorldBookBindingOptions === 'function') {
+                renderWorldBookBindingOptions([]); 
+            }
+
+            // 5. 安全打开弹窗
+            const modal = document.getElementById('char-creator-modal');
+            if (modal) {
+                modal.classList.add('active');
+            } else {
+                alert("错误：找不到 ID 为 char-creator-modal 的弹窗元素！");
+            }
+        }
+
+// 1. 关闭角色创建弹窗 (对应角色页面的"取消")
+function closeCharCreator() {
+    document.getElementById('char-creator-modal').classList.remove('active');
+}
+
+// --- 新增功能：渲染世界书绑定列表 ---
+function renderWorldBookBindingOptions(selectedBooks = []) {
+    const globalContainer = document.getElementById('bind-global-container');
+    const localContainer = document.getElementById('bind-local-container');
+    
+    // 清空容器
+    globalContainer.innerHTML = '';
+    localContainer.innerHTML = '';
+
+    // 辅助生成HTML的函数
+    const createCheckbox = (book) => {
+        const isChecked = selectedBooks.includes(book.id) ? 'checked' : '';
+        return `
+            <label class="folder-input-row" style="justify-content: flex-start; gap: 10px; cursor: pointer; padding: 8px; border-bottom: 1px dashed #eee;">
+                <input type="checkbox" class="wb-bind-checkbox" value="${book.id}" ${isChecked} style="accent-color: var(--accent-pink); width: 16px; height: 16px;">
+                <span style="font-size: 13px; color: #555;">${book.title}</span>
+                <span style="font-size: 10px; color: #aaa; margin-left: auto;">${book.entries.length}条目</span>
+            </label>
+        `;
+    };
+
+    // 分类渲染
+    const globals = worldBooksData.filter(b => b.type === 'global');
+    const locals = worldBooksData.filter(b => b.type === 'local');
+
+    if (globals.length === 0) globalContainer.innerHTML = '<div style="color:#ccc; font-size:12px; padding:5px;">无可用全局书</div>';
+    else globals.forEach(b => globalContainer.innerHTML += createCheckbox(b));
+
+    if (locals.length === 0) localContainer.innerHTML = '<div style="color:#ccc; font-size:12px; padding:5px;">无可用局部书</div>';
+    else locals.forEach(b => localContainer.innerHTML += createCheckbox(b));
+}
+
+// --- 新增功能：处理开场白文件导入 ---
+function handleGreetingImport(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    // 简单的文件名读取逻辑 (注: 真实环境读取docx/png需要复杂库，这里按纯文本处理json/txt)
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const textArea = document.getElementById('greeting-content');
+        const category = document.getElementById('greeting-category').value;
+        
+        let textToInsert = content;
+
+        // 如果是JSON，尝试解析
+        if (file.name.toLowerCase().endsWith('.json')) {
+            try {
+                const json = JSON.parse(content);
+                // 尝试找几个常见字段，如果找不到就dump整个json
+                textToInsert = json.greeting || json.content || json.text || json.description || JSON.stringify(json, null, 2);
+            } catch (err) {
+                console.log("JSON解析失败，按纯文本处理");
+            }
+        }
+        
+        // 简单的追加还是覆盖？这里选择覆盖当前输入框
+        textArea.value = textToInsert;
+        alert(`已从 [${file.name}] 导入内容到 [${category}] 分类`);
+        input.value = ''; // 重置，允许重复导入同名文件
+    };
+    
+    // 注意：读取 DOCX/PNG OCR 需要引入 mammoth.js 或 tesseract.js，
+    // 原生JS只能读取文本。此处仅演示 .txt/.json 的文本读取。
+    reader.readAsText(file); 
+}
+
+// 2. 保存角色 (对应角色页面的"完成")
+function saveCharacter() {
+    const nameInput = document.getElementById('char-name');
+    if (!nameInput.value.trim()) { alert("请输入角色姓名"); return; }
+
+    // 获取头像
+    const avatarImg = document.getElementById('char-avatar-preview');
+    const hasAvatar = avatarImg.style.display !== 'none';
+
+        // [新增] 获取选中的世界书绑定ID
+    const boundBooks = [];
+    document.querySelectorAll('.wb-bind-checkbox:checked').forEach(cb => {
+        boundBooks.push(parseInt(cb.value));
+    });
+
+    // [新增] 获取开场白配置
+    const greetingData = {
+        category: document.getElementById('greeting-category').value,
+        content: document.getElementById('greeting-content').value
+    };
+
+    // 构建新角色对象
+    const newChar = {
+        id: Date.now(),
+        name: nameInput.value,
+        nickname: document.getElementById('char-nickname').value,
+        gender: document.getElementById('char-gender').value,
+        avatar: hasAvatar ? avatarImg.src : null,
+        intro: document.getElementById('char-desc-simple').value || "暂无简介",
+        isDetailed: document.getElementById('mode-switch').checked,
+        // [新增] 保存绑定数据和开场白
+        boundWorldBooks: boundBooks,
+        greeting: greetingData
+    };
+
+    // 保存到列表和本地存储
+    characterList.push(newChar);
+    localStorage.setItem('characterList', JSON.stringify(characterList));
+
+    // 刷新界面并关闭
+    renderCharacterList(); 
+    closeCharCreator();
+    alert("角色档案已创建！");
+}
+
+// 3. 渲染角色列表 (确保清空旧数据)
+function renderCharacterList() {
+    const container = document.getElementById('character-list-content');
+    if (!container) return;
+    
+    // 关键：必须先清空容器，否则会越来越长
+    container.innerHTML = "";
+
+    if (characterList.length === 0) {
+        container.innerHTML = '<div style="text-align:center; margin-top:50px; color:#ccc;">暂无角色，点击右上角 + 创建</div>';
+        return;
+    }
+
+    characterList.forEach(char => {
+        // ... (保持你原有的生成卡片代码不变) ...
+        const item = document.createElement('div');
+        item.className = 'entry-card';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = '15px';
+        
+        const avatarHtml = char.avatar 
+            ? `<img src="${char.avatar}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:1px solid #eee;">`
+            : `<div style="width:50px; height:50px; background:#f0f0f0; border-radius:50%; display:flex; justify-content:center; align-items:center; color:#ccc;"><i class="fas fa-user"></i></div>`;
+
+        const genderColor = char.gender === 'female' ? 'var(--accent-pink)' : (char.gender === 'male' ? '#4facfe' : '#ccc');
+        const genderIcon = char.gender === 'female' ? 'fa-venus' : (char.gender === 'male' ? 'fa-mars' : 'fa-genderless');
+
+        item.innerHTML = `
+            ${avatarHtml}
+            <div style="flex:1;">
+                <div style="font-weight:bold; color:#444; font-size:16px;">
+                    ${char.name} 
+                    <i class="fas ${genderIcon}" style="color:${genderColor}; font-size:12px; margin-left:5px;"></i>
+                </div>
+                <div style="font-size:12px; color:#888; margin-top:3px;">${char.nickname || '无昵称'}</div>
+                <div style="font-size:12px; color:#aaa; margin-top:2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${char.intro}
+                </div>
+            </div>
+            <i class="fas fa-trash" style="color:#ff6b6b; padding:10px; cursor:pointer;" onclick="deleteCharacter(${char.id})"></i>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// 4. 删除角色功能
+function deleteCharacter(id) {
+    if(confirm("确认删除此角色档案？")) {
+        characterList = characterList.filter(c => c.id !== id);
+        localStorage.setItem('characterList', JSON.stringify(characterList));
+        renderCharacterList();
+    }
+}
+
+// 5. 关闭人设面具弹窗 (对应人设页面的"取消")
+// *注意：没有这个函数，人设页面的"完成"按钮也会报错，因为它内部调用了关闭函数
+function closePersonaCreator() {
+    document.getElementById('persona-creator-modal').classList.remove('active');
+}
+
+        // =========================================
+        // 更新：人设面具逻辑 (带头像)
+        // =========================================
+
+        function openPersonaCreator() {
+            if (personaList.length >= 5) {
+                alert("最多只能创建 5 个人设面具！");
+                return;
+            }
+            // 重置表单
+            document.querySelectorAll('#persona-creator-modal input, #persona-creator-modal textarea, #persona-creator-modal select').forEach(el => el.value = '');
+            document.getElementById('p-gender').value = 'female';
+            togglePersonaGender('female');
+            document.getElementById('p-mode-switch').checked = false;
+            togglePersonaMode(false);
+            
+            // 重置头像
+            document.getElementById('p-avatar-input').value = '';
+            resetAvatarDisplay('p-avatar-preview', 'p-avatar-icon');
+
+            document.getElementById('persona-creator-modal').classList.add('active');
+        }
+
+        function savePersona() {
+            const name = document.getElementById('p-name').value;
+            if (!name) { alert("请输入真实姓名"); return; }
+            
+            const isDetailed = document.getElementById('p-mode-switch').checked;
+            
+            // 获取头像
+            const avatarSrc = document.getElementById('p-avatar-preview').src;
+            const hasAvatar = document.getElementById('p-avatar-preview').style.display !== 'none';
+            
+            const newPersona = {
+                id: Date.now(),
+                name: name,
+                nickname: document.getElementById('p-nickname').value,
+                gender: document.getElementById('p-gender').value,
+                avatar: hasAvatar ? avatarSrc : null, // 保存头像
+                isDetailed: isDetailed,
+                descSimple: document.getElementById('p-desc-simple').value,
+                details: {
+                    // ... 请确保这里保留之前完整的字段抓取代码 ...
+                    // 例如: age: document.getElementById('p-age').value,
+                    summary: isDetailed ? "精版人设" : "简版人设"
+                }
+            };
+            
+            personaList.push(newPersona);
+            localStorage.setItem('personaList', JSON.stringify(personaList));
+            
+            if (personaList.length === 1) {
+                activePersonaId = newPersona.id;
+                localStorage.setItem('activePersonaId', activePersonaId);
+            }
+
+            renderPersonaList();
+            closePersonaCreator();
+            alert("人设面具已保存！");
+        }
+
+        function renderPersonaList() {
+            const container = document.getElementById('persona-list-container');
+            container.innerHTML = "";
+            document.getElementById('persona-count').innerText = `(${personaList.length}/5)`;
+
+            if (personaList.length === 0) {
+                container.innerHTML = '<div style="padding:20px; text-align:center; color:#ddd;">暂无人设，点击 + 添加</div>';
+                return;
+            }
+
+            personaList.forEach(p => {
+                const isActive = (String(p.id) === String(activePersonaId));
+                const item = document.createElement('div');
+                item.className = 'entry-card';
+                item.style.cssText = "margin-bottom: 10px; padding: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid " + (isActive ? "var(--accent-blue)" : "#eee");
+                
+                const iconColor = p.gender === 'female' ? 'var(--accent-pink)' : '#4facfe';
+
+                // 构建头像 HTML
+                let avatarHtml = '';
+                if (p.avatar) {
+                    avatarHtml = `<img src="${p.avatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:10px; border:1px solid #ddd;">`;
+                } else {
+                    avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background:#f0f0f0; display:flex; justify-content:center; align-items:center; color:#ccc; margin-right:10px;"><i class="fas fa-mask"></i></div>`;
+                }
+
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; flex: 1;">
+                        <div onclick="activatePersona(${p.id})" style="cursor: pointer; padding-right: 15px;">
+                            <i class="fas ${isActive ? 'fa-check-square' : 'fa-square'}" style="font-size: 20px; color: ${isActive ? 'var(--accent-blue)' : '#ddd'};"></i>
+                        </div>
+                        
+                        <div style="display:flex; align-items:center;">
+                            ${avatarHtml}
+                            <div>
+                                <div style="font-weight: bold; color: #444;">
+                                    ${p.name} 
+                                    <i class="fas ${p.gender==='female'?'fa-venus':'fa-mars'}" style="color:${iconColor}; font-size:12px; margin-left:5px;"></i>
+                                </div>
+                                <div style="font-size: 11px; color: #999;">
+                                    ${p.nickname || '-'} · ${p.isDetailed ? '精设' : '简设'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <i class="fas fa-trash" onclick="deletePersona(${p.id})" style="color: #ff6b6b; cursor: pointer; padding: 5px;"></i>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+// 角色创建：切换简版/精版
+function toggleCharMode(checked) {
+    const simpleArea = document.getElementById('simple-mode-area');
+    const detailedArea = document.getElementById('detailed-mode-area');
+    if(checked) {
+        simpleArea.style.display = 'none';
+        detailedArea.style.display = 'block';
+    } else {
+        simpleArea.style.display = 'block';
+        detailedArea.style.display = 'none';
+    }
+}
+
+// 角色创建：根据性别显示不同特征区域
+function toggleGenderFields(gender) {
+    const femaleFeat = document.getElementById('female-features');
+    const maleFeat = document.getElementById('male-features');
+    
+    // 如果你按照上面的步骤加了ID，这里就不会报错了
+    if(gender === 'female') {
+        if(femaleFeat) femaleFeat.style.display = 'block';
+        if(maleFeat) maleFeat.style.display = 'none';
+    } else if (gender === 'male') {
+        if(femaleFeat) femaleFeat.style.display = 'none';
+        if(maleFeat) maleFeat.style.display = 'block';
+    } else {
+        if(femaleFeat) femaleFeat.style.display = 'none';
+        if(maleFeat) maleFeat.style.display = 'none';
+    }
+}
+
+// 自动计算星座 (简单示例)
+function calculateZodiac(dateStr) {
+    if(!dateStr) return;
+    const date = new Date(dateStr);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    let zodiac = "";
+    // 简易判断逻辑
+    if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) zodiac = "水瓶座";
+    else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) zodiac = "双鱼座";
+    else if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) zodiac = "白羊座";
+    else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) zodiac = "金牛座";
+    else if ((month == 5 && day >= 21) || (month == 6 && day <= 21)) zodiac = "双子座";
+    else if ((month == 6 && day >= 22) || (month == 7 && day <= 22)) zodiac = "巨蟹座";
+    else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) zodiac = "狮子座";
+    else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) zodiac = "处女座";
+    else if ((month == 9 && day >= 23) || (month == 10 && day <= 23)) zodiac = "天秤座";
+    else if ((month == 10 && day >= 24) || (month == 11 && day <= 22)) zodiac = "天蝎座";
+    else if ((month == 11 && day >= 23) || (month == 12 && day <= 21)) zodiac = "射手座";
+    else zodiac = "摩羯座";
+    
+    document.getElementById('char-zodiac').value = zodiac;
+}
+
+// 人设面具：切换简版/精版
+function togglePersonaMode(checked) {
+    const simple = document.getElementById('p-simple-area');
+    const detailed = document.getElementById('p-detailed-area');
+    if(checked) {
+        simple.style.display = 'none';
+        detailed.style.display = 'block';
+    } else {
+        simple.style.display = 'block';
+        detailed.style.display = 'none';
+    }
+}
+
+// 人设面具：切换性别区域
+function togglePersonaGender(gender) {
+    const f = document.getElementById('p-female-features');
+    const m = document.getElementById('p-male-features');
+    if(gender === 'female') { f.style.display = 'block'; m.style.display = 'none'; }
+    else { f.style.display = 'none'; m.style.display = 'block'; }
+}
+
+// 人设面具：计算星座
+function calculatePersonaZodiac(val) {
+    // 复用上面的逻辑，只是输出ID不同
+    calculateZodiac(val); 
+    document.getElementById('p-zodiac').value = document.getElementById('char-zodiac').value; 
+    document.getElementById('char-zodiac').value = ""; // 清理掉借用的
+}
+
+// =========================================
+// ↓↓↓↓ 补充人设面具的交互函数 ↓↓↓↓
+// =========================================
+
+// 6. 激活/选择人设面具
+function activatePersona(id) {
+    // 如果点击的是已经激活的，则取消激活
+    if (String(activePersonaId) === String(id)) {
+        activePersonaId = null;
+    } else {
+        activePersonaId = id;
+    }
+    
+    // 保存状态并刷新界面
+    localStorage.setItem('activePersonaId', activePersonaId);
+    
+    // 震动反馈
+    if (navigator.vibrate) navigator.vibrate(10);
+    
+    renderPersonaList();
+}
+
+// 7. 删除人设面具
+function deletePersona(id) {
+    // 阻止事件冒泡，防止触发 activePersona
+    event.stopPropagation();
+    
+    if(confirm("确定要删除这张人设面具吗？")) {
+        // 从数组中移除
+        personaList = personaList.filter(p => p.id !== id);
+        
+        // 如果删除的是当前激活的，重置激活状态
+        if (String(activePersonaId) === String(id)) {
+            activePersonaId = null;
+            localStorage.setItem('activePersonaId', null);
+        }
+        
+        // 保存并刷新
+        localStorage.setItem('personaList', JSON.stringify(personaList));
+        renderPersonaList();
+    }
+}
+
+    </script>
+</body>
+</html>
