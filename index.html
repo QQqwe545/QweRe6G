@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cut OS Style Interface</title>
+    <!-- 引入样式表将在下方 CSS 部分 -->
+    <link rel="stylesheet" href="style.css"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- 全局容器 -->
+    <div id="phone-container">
+        
+        <!-- 滑动可视区域 -->
+        <div id="swiper-wrapper">
+            
+            <!-- 第 1 页：高级混排风格 -->
+            <div class="screen-page page-1">
+                <div class="grid-container">
+                    <!-- 大组件：天气 -->
+                    <div class="widget widget-large weather-widget">
+                        <div class="bg-blur"></div>
+                        <div class="content">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>26°</span>
+                            <p>Cupertino</p>
+                        </div>
+                    </div>
+
+                    <!-- App 图标组 1 -->
+                    <div class="app-icon" style="background: #007AFF"><i class="fas fa-envelope"></i></div>
+                    <div class="app-icon" style="background: #5856D6"><i class="fas fa-podcast"></i></div>
+                    
+                    <!-- 中组件：音乐 -->
+                    <div class="widget widget-medium music-widget">
+                        <div class="album-art"></div>
+                        <div class="info">
+                            <h4>Playing</h4>
+                            <p>Cut OS Mix</p>
+                        </div>
+                    </div>
+
+                    <!-- App 图标组 2 -->
+                    <div class="app-icon" style="background: #FF9500"><i class="fas fa-home"></i></div>
+                    <div class="app-icon" style="background: #FF2D55"><i class="fas fa-music"></i></div>
+
+                    <!-- 宽组件：日历 -->
+                    <div class="widget widget-wide calendar-widget">
+                        <div class="left">FRI</div>
+                        <div class="right">
+                            <span class="date">06</span>
+                            <span class="event">Design Review</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第 2 页：Cut OS 散乱/艺术风格 -->
+            <div class="screen-page page-2">
+                <div class="grid-container chaotic-grid">
+                    
+                    <!-- 故意留空的占位符，制造散乱感 -->
+                    <div class="spacer"></div>
+                    
+                    <div class="app-icon" style="background: #34C759"><i class="fab fa-whatsapp"></i></div>
+                    
+                    <!-- 电池组件 -->
+                    <div class="widget widget-small battery-widget">
+                        <i class="fas fa-bolt"></i>
+                        <span>85%</span>
+                    </div>
+
+                    <div class="spacer"></div>
+                    <div class="app-icon" style="background: #AF52DE"><i class="fas fa-gamepad"></i></div>
+
+                    <!-- 照片组件，占据奇特位置 -->
+                    <div class="widget widget-medium photo-widget">
+                        <span>Memories</span>
+                    </div>
+
+                    <div class="app-icon" style="background: #FF3B30"><i class="fab fa-youtube"></i></div>
+                    <div class="spacer"></div>
+                    
+                    <!-- 长条快捷组件 -->
+                    <div class="widget widget-wide tools-widget">
+                        <i class="fas fa-wifi"></i>
+                        <i class="fas fa-bluetooth"></i>
+                        <i class="fas fa-plane"></i>
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    
+                    <div class="app-icon" style="background: #8E8E93"><i class="fas fa-cog"></i></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 底部页面指示点 -->
+        <div class="pagination">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+        </div>
+
+        <!-- 底部 Dock 栏 -->
+        <div class="dock-bar">
+            <div class="dock-container">
+                <div class="app-icon" style="background: #34C759"><i class="fas fa-phone"></i></div>
+                <div class="app-icon" style="background: #007AFF"><i class="fab fa-safari"></i></div>
+                <div class="app-icon" style="background: #FFD60A"><i class="fas fa-comment"></i></div>
+                <div class="app-icon" style="background: linear-gradient(to bottom right, #FF3B30, #AF52DE)"><i class="fas fa-camera"></i></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 脚本引入 -->
+    <script src="script.js"></script>
+</body>
+</html>

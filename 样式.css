@@ -1,0 +1,236 @@
+/* 全局重置与全屏设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* 禁止滚动条 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* 核心：禁止iOS原生侧滑返回和橡皮筋效果 */
+    overscroll-behavior: none;
+    touch-action: none; 
+}
+
+/* 动态背景 */
+#phone-container {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    background: radial-gradient(circle at 10% 20%, rgb(255, 131, 131) 0%, rgb(113, 137, 255) 90%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 滑动容器 */
+#swiper-wrapper {
+    display: flex;
+    width: 200vw; /* 两页宽度 */
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.screen-page {
+    width: 100vw;
+    height: 100%;
+    padding: 60px 20px 120px 20px; /* 留出顶部和底部Dock的空间 */
+    overflow: hidden;
+}
+
+/* 网格布局系统 */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4列布局 */
+    grid-auto-rows: 80px; /* 行高基准 */
+    gap: 20px 15px; /* 行间距 和 列间距 */
+    justify-items: center;
+    align-items: center;
+}
+
+/* --- 组件样式 (Glassmorphism) --- */
+.widget {
+    position: relative;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 组件尺寸定义 */
+.widget-small {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.widget-medium {
+    grid-column: span 2;
+    grid-row: span 2; /* 2x2 */
+}
+
+.widget-large {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.widget-wide {
+    grid-column: span 4; /* 占满一行 */
+    grid-row: span 1; /* 高度较矮 */
+}
+
+/* Page 1 特定布局微调 */
+.page-1 .grid-container .weather-widget {
+    grid-column: 1 / span 2;
+    grid-row: span 2;
+    background: linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%);
+}
+
+.page-1 .grid-container .music-widget {
+    grid-column: 3 / span 2;
+    grid-row: span 2;
+    background: rgba(0,0,0,0.2);
+}
+
+/* --- Page 2 Chaotic Cut OS Style --- */
+/* 这里通过特定指定位置来制造“乱序”感 */
+
+.chaotic-grid {
+    /* 更加稀疏或错位的布局 */
+    grid-template-rows: repeat(6, 70px);
+}
+
+.chaotic-grid .battery-widget {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #81FBB8 10%, #28C76F 100%);
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.chaotic-grid .photo-widget {
+    grid-column: span 2;
+    grid-row: span 2;
+    background: url('https://picsum.photos/300/300') center/cover;
+    /* 稍微旋转一点增加Cut OS的不规则感 */
+    transform: rotate(2deg); 
+    border: 2px solid #fff;
+}
+
+.chaotic-grid .tools-widget {
+    grid-column: 2 / span 3; /* 错位开始 */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    font-size: 1.2rem;
+    background: rgba(0,0,0,0.4);
+}
+
+/* 占位符，不可见，用于推挤其他元素 */
+.spacer {
+    width: 100%;
+    height: 100%;
+}
+
+/* --- 图标样式 --- */
+.app-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px; /* iOS 风格圆角 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.1s;
+    cursor: pointer;
+}
+
+.app-icon:active {
+    transform: scale(0.9);
+    filter: brightness(0.8);
+}
+
+/* --- Dock 栏 --- */
+.dock-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 85px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.dock-container {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+/* --- 分页指示器 --- */
+.pagination {
+    position: absolute;
+    bottom: 115px; /* Dock 上方 */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 90;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.dot.active {
+    background: #fff;
+    width: 8px;
+}
+
+/* 适配特定小组件内部排版 */
+.weather-widget .content { text-align: center; }
+.weather-widget i { font-size: 2.5rem; margin-bottom: 5px; }
+.weather-widget span { font-size: 1.5rem; font-weight: 600; display: block; }
+.weather-widget p { font-size: 0.8rem; opacity: 0.8; }
+
+.calendar-widget { flex-direction: row; padding: 0 20px; justify-content: space-between; background: #fff; color: #333; }
+.calendar-widget .left { font-weight: bold; color: #FF3B30; }
+.calendar-widget .right { text-align: right; }
+.calendar-widget .date { font-size: 2rem; font-weight: 700; display: block; line-height: 1; }
+.calendar-widget .event { font-size: 0.7rem; color: #888; }
+
+/* 禁用长按菜单 */
+img, a {
+    -webkit-touch-callout: none;
+}
